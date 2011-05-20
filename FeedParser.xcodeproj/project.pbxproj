@@ -374,6 +374,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = FeedParser;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -391,6 +392,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = FeedParser;
+				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
 			};
 			name = Release;
