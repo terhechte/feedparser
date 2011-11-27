@@ -74,8 +74,6 @@
 - (void)closeTextNode {
 	FPExtensionTextNode *child = [[FPExtensionTextNode alloc] initWithStringValue:currentText];
 	[children addObject:child];
-	[child release];
-	[currentText release];
 	currentText = nil;
 }
 
@@ -89,16 +87,6 @@
 			(children      == other->children      || [children      isEqualToArray:other->children]));
 }
 
-- (void)dealloc {
-	[name release];
-	[qualifiedName release];
-	[namespaceURI release];
-	[attributes release];
-	[children release];
-	[currentText release];
-	[super dealloc];
-}
-
 #pragma mark XML parser methods
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)aNamespaceURI
@@ -110,7 +98,6 @@
 																		  qualifiedName:qName attributes:attributeDict];
 	[child acceptParsing:parser];
 	[children addObject:child];
-	[child release];
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
@@ -139,7 +126,6 @@
 	} else {
 		if (currentText == nil) currentText = [[NSMutableString alloc] init];
 		[currentText appendString:data];
-		[data release];
 	}
 }
 
@@ -157,7 +143,6 @@
 - (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description {
 	id<FPXMLParserProtocol> parent = parentParser;
 	parentParser = nil;
-	[currentText release];
 	currentText = nil;
 	[parent abortParsing:parser withString:description];
 }

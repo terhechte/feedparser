@@ -52,11 +52,6 @@
 	return (stringValue == other->stringValue || [stringValue isEqualToString:other->stringValue]);
 }
 
-- (void)dealloc {
-	[stringValue release];
-	[super dealloc];
-}
-
 #pragma mark -
 #pragma mark Coding Support
 

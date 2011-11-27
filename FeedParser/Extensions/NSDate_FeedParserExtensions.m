@@ -34,10 +34,10 @@ static NSArray *kMonths;
 	kMonths = [[NSArray alloc] initWithObjects:@"Jan", @"Feb", @"Mar", @"Apr", @"May", @"Jun", @"Jul", @"Aug", @"Sep", @"Oct", @"Nov", @"Dec", nil];
 }
 
-#define ASSERT(cond) do { if (!(cond)) { [pool release]; return nil; } } while (0)
+#define ASSERT(cond) do { if (!(cond)) { return nil; } } while (0)
 + (NSDate *)dateWithRFC822:(NSString *)rfc822 {
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
-	NSDateComponents *components = [[[NSDateComponents alloc] init] autorelease];
+
+	NSDateComponents *components = [[NSDateComponents alloc] init];
 	NSScanner *scanner = [NSScanner scannerWithString:rfc822];
 	NSCharacterSet *letterSet;
 	{
@@ -113,12 +113,9 @@ static NSArray *kMonths;
 	}
 	ASSERT(tz != nil);
 	ASSERT([scanner isAtEnd]);
-	NSCalendar *calendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+	NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
 	[calendar setTimeZone:tz];
 	NSDate *date = [calendar dateFromComponents:components];
-	[date retain];
-	[pool release];
-	[date autorelease];
 	return date;
 }
 #undef ASSERT

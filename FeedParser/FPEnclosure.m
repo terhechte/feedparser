@@ -30,7 +30,7 @@
 @synthesize url, length, type;
 
 + (id)enclosureWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type {
-	return [[[self alloc] initWithURL:url length:length type:type] autorelease];
+	return [[self alloc] initWithURL:url length:length type:type];
 }
 
 - (id)initWithURL:(NSString *)inurl length:(NSUInteger)inlength type:(NSString *)intype {
@@ -52,12 +52,6 @@
 
 - (NSString *)description {
 	return [NSString stringWithFormat:@"<%@: %@ (length=%lu type=\"%@\")>", NSStringFromClass([self class]), self.url, (unsigned long)self.length, self.type];
-}
-
-- (void)dealloc {
-	[url release];
-	[type release];
-	[super dealloc];
 }
 
 #pragma mark -

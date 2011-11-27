@@ -29,7 +29,7 @@
 @implementation FPLink
 @synthesize href, rel, type, title;
 + (id)linkWithHref:(NSString *)href rel:(NSString *)rel type:(NSString *)type title:(NSString *)title {
-	return [[[self alloc] initWithHref:href rel:rel type:type title:title] autorelease];
+	return [[self alloc] initWithHref:href rel:rel type:type title:title];
 }
 
 - (id)initWithHref:(NSString *)inHref rel:(NSString *)inRel type:(NSString *)inType title:(NSString *)inTitle {
@@ -60,14 +60,6 @@
 		}
 	}
 	return [NSString stringWithFormat:@"<%@: %@ (%@)>", NSStringFromClass([self class]), self.href, [attributes componentsJoinedByString:@" "]];
-}
-
-- (void)dealloc {
-	[href release];
-	[rel release];
-	[type release];
-	[title release];
-	[super dealloc];
 }
 
 #pragma mark -

@@ -39,14 +39,8 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 }
 
 + (FPFeed *)parsedFeedWithData:(NSData *)data error:(NSError **)error {
-	FPParser *parser = [[[[self class] alloc] init] autorelease];
+	FPParser *parser = [[[self class] alloc] init];
 	return [parser parseData:data error:error];
-}
-
-- (void)dealloc {
-	[feed release];
-	[errorString release];
-	[super dealloc];
 }
 
 #pragma mark -
@@ -56,7 +50,7 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 }
 
 - (FPFeed *)parseData:(NSData *)data error:(NSError **)error {
-	NSXMLParser *xmlParser = [[[NSXMLParser alloc] initWithData:data] autorelease];
+	NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
 	if (xmlParser == nil) {
 		if (error) *error = [NSError errorWithDomain:FPParserErrorDomain code:FPParserInternalError userInfo:nil];
 		return nil;
@@ -66,9 +60,8 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 	[xmlParser setShouldProcessNamespaces:YES];
 	if ([xmlParser parse]) {
 		if (feed != nil) {
-			FPFeed *retFeed = [feed autorelease];
+			FPFeed *retFeed = feed;
 			feed = nil;
-			[errorString release]; errorString = nil;
 			return retFeed;
 		} else {
 			// nil means we aborted, but NSXMLParser didn't record the error
@@ -78,12 +71,11 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 				errorString = @"The XML document did not contain a feed";
 			}
 			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorString forKey:NSLocalizedDescriptionKey];
-			[errorString release]; errorString = nil;
+
 			if (error) *error = [NSError errorWithDomain:FPParserErrorDomain code:FPParserInvalidFeedError userInfo:userInfo];
 			return nil;
 		}
 	} else {
-		[feed release]; feed = nil;
 		if (error) {
 			*error = [xmlParser parserError];
 			if ([[*error domain] isEqualToString:NSXMLParserErrorDomain]) {
@@ -102,15 +94,11 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 				}
 			}
 		}
-		[errorString release]; errorString = nil;
 		return nil;
 	}
 }
 
 - (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description {
-	[feed release];
-	feed = nil;
-	[errorString release];
 	if (description == nil) {
 		errorString = [[NSString alloc] initWithFormat:@"Invalid feed data at line %ld", (long)[parser lineNumber]];
 	} else {
@@ -122,8 +110,6 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 #pragma mark XML Parser methods
 
 - (void)parserDidStartDocument:(NSXMLParser *)parser {
-	[feed release];
-	feed = nil;
 	lookingForChannel = NO;
 }
 

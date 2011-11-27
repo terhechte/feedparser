@@ -29,13 +29,13 @@
 @synthesize first, second;
 
 + (id)pairWithFirst:(id)firstObject second:(id)secondObject {
-	return [[[self alloc] initWithFirst:firstObject second:secondObject] autorelease];
+	return [[self alloc] initWithFirst:firstObject second:secondObject];
 }
 
 - (id)initWithFirst:(id)firstObject second:(id)secondObject {
 	if ((self = [super init])) {
-		first = [firstObject retain];
-		second = [secondObject retain];
+		first = firstObject;
+		second = secondObject;
 	}
 	return self;
 }
@@ -64,9 +64,4 @@
 	return [NSString stringWithFormat:@"<%@: (%@, %@)>", NSStringFromClass([self class]), self.first, self.second];
 }
 
-- (void)dealloc {
-	[first release];
-	[second release];
-	[super dealloc];
-}
 @end

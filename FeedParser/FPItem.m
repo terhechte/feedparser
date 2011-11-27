@@ -110,10 +110,9 @@
 - (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
 	FPLink *aLink = [[FPLink alloc] initWithHref:textValue rel:@"alternate" type:nil title:nil];
 	if (link == nil) {
-		link = [aLink retain];
+		link = aLink;
 	}
 	[links addObject:aLink];
-	[aLink release];
 }
 
 - (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
@@ -122,10 +121,9 @@
 	FPLink *aLink = [[FPLink alloc] initWithHref:href rel:[attributes objectForKey:@"rel"] type:[attributes objectForKey:@"type"]
 										   title:[attributes objectForKey:@"title"]];
 	if (link == nil && [aLink.rel isEqualToString:@"alternate"]) {
-		link = [aLink retain];
+		link = aLink;
 	}
 	[links addObject:aLink];
-	[aLink release];
 }
 
 -(void) mediaRSS_thumbnail:(NSString *)text attributes:(NSDictionary*)attributes parser:(NSXMLParser *)parser{
@@ -151,7 +149,6 @@
 	NSUInteger length = [lengthStr integerValue];
 	FPEnclosure *anEnclosure = [[FPEnclosure alloc] initWithURL:url length:length type:type];
 	[enclosures addObject:anEnclosure];
-	[anEnclosure release];
 }
 
 - (NSString *)content {
@@ -182,36 +179,13 @@
 			(enclosures  == other->enclosures || [enclosures  isEqualToArray:other->enclosures]));
 }
 
-- (void)dealloc {
-	[title release];
-	[link release];
-	[links release];
-	[guid release];
-	[description release];
-	[content release];
-	[pubDate release];
-	[creator release];
-	[author release];
-	[category release];
-	[enclosures release];
-	[thumbnailURL release];
-	[itunesAuthor release];
-	[itunesSubtitle release];
-	[itunesSummary release];
-	[itunesBlock release];
-	[itunesDuration release];
-	[itunesKeywords release];
-	[itunesExplict release];
-	[super dealloc];
-}
-
 #pragma mark -
 #pragma mark Coding Support
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
 	if ((self = [super initWithCoder:aDecoder])) {
 		title = [[aDecoder decodeObjectForKey:@"title"] copy];
-		link = [[aDecoder decodeObjectForKey:@"link"] retain];
+		link = [aDecoder decodeObjectForKey:@"link"];
 		links = [[aDecoder decodeObjectForKey:@"links"] mutableCopy];
 		guid = [[aDecoder decodeObjectForKey:@"guid"] copy];
 		description = [[aDecoder decodeObjectForKey:@"description"] copy];
