@@ -43,14 +43,18 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 	return [parser parseData:data error:error];
 }
 
++ (FPFeed *)parsedFeedWithStream:(NSInputStream *)stream error:(NSError **)error {
+    FPParser *parser = [[[self class] alloc] init];
+    return [parser parseStream:stream error:error];
+}
+
 #pragma mark -
 
 - (FPFeed *)newFeedWithBaseNamespaceURI: (NSString *)namespaceURI {
 	return [[FPFeed alloc] initWithBaseNamespaceURI: namespaceURI];
 }
 
-- (FPFeed *)parseData:(NSData *)data error:(NSError **)error {
-	NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
+- (FPFeed *)useParser:(NSXMLParser *)xmlParser error:(NSError **)error {
 	if (xmlParser == nil) {
 		if (error) *error = [NSError errorWithDomain:FPParserErrorDomain code:FPParserInternalError userInfo:nil];
 		return nil;
@@ -58,6 +62,7 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 	parseDepth = 1;
 	[xmlParser setDelegate:self];
 	[xmlParser setShouldProcessNamespaces:YES];
+    
 	if ([xmlParser parse]) {
 		if (feed != nil) {
 			FPFeed *retFeed = feed;
@@ -96,6 +101,17 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 		}
 		return nil;
 	}
+}
+
+
+- (FPFeed *)parseStream:(NSInputStream *)inputStream error:(NSError **)error {
+    NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithStream:inputStream];
+    return [self useParser:xmlParser error:error];
+}
+
+- (FPFeed *)parseData:(NSData *)data error:(NSError **)error {
+	NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
+    return [self useParser:xmlParser error:error];
 }
 
 - (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description {
