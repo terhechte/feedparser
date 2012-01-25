@@ -30,15 +30,8 @@
 @class FPLink;
 @class FPItem;
 
-@interface FPFeed : FPXMLParser <NSCoding> {
-@private
-	NSString *title;
-	FPLink *link;
-	NSMutableArray *links;
-	NSString *feedDescription;
-	NSDate *pubDate;
-	NSMutableArray *items;
-}
+@interface FPFeed : FPXMLParser <NSCoding> 
+
 @property (nonatomic, copy, readonly) NSString *title;
 // RSS <link> or Atom <link rel="alternate">
 // If multiple qualifying links exist, the first is returned
@@ -49,6 +42,10 @@
 @property (nonatomic, copy, readonly) NSString *feedDescription;
 @property (nonatomic, copy, readonly) NSDate *pubDate;
 @property (nonatomic, retain, readonly) NSArray *items;
+
+@property (nonatomic, copy, readonly) NSString *itunesAuthor;
+@property (nonatomic, copy, readonly) NSString *itunesImageURLString;
+
 // parent class defines property NSArray *extensionElements
 // parent class defines method -(NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI
 // parent class defines method - (NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI elementName:(NSString *)elementName

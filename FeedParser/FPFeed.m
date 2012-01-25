@@ -30,17 +30,30 @@
 #import "NSDate_FeedParserExtensions.h"
 
 @interface FPFeed ()
+{
+	NSMutableArray *links;
+	NSMutableArray *items;
+}
+
 @property (nonatomic, copy, readwrite) NSString *title;
 @property (nonatomic, copy, readwrite) NSString *feedDescription;
 @property (nonatomic, copy, readwrite) NSDate *pubDate;
+
+@property (nonatomic, copy, readwrite) NSString *itunesAuthor;
+@property (nonatomic, copy, readwrite) NSString *itunesImageURLString;
+
 - (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 - (void)rss_item:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 - (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 - (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
+
 @end
 
 @implementation FPFeed
+
 @synthesize title, link, links, feedDescription, pubDate, items;
+@synthesize itunesAuthor;
+@synthesize itunesImageURLString;
 
 + (void)initialize {
 	if (self == [FPFeed class]) {
@@ -48,6 +61,10 @@
 		[self registerRSSHandler:@selector(rss_link:attributes:parser:) forElement:@"link" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(setFeedDescription:) forElement:@"description" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(rss_pubDate:attributes:parser:) forElement:@"pubDate" type:FPXMLParserTextElementType];
+        
+        [self registerTextHandler:@selector(setItunesAuthor:) forElement:@"author" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        [self registerTextHandler:@selector(itunes_image:attributes:parser:) forElement:@"image" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        
 		for (NSString *key in [NSArray arrayWithObjects:
 							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate", @"category",
 							   @"generator", @"docs", @"cloud", @"ttl", @"image", @"rating", @"textInput", @"skipHours", @"skipDays", nil]) {
@@ -101,6 +118,11 @@
 		link = aLink;
 	}
 	[links addObject:aLink];
+}
+
+- (void) itunes_image:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
+{
+    self.itunesImageURLString = [attributes valueForKey:@"href"];
 }
 
 - (BOOL)isEqual:(id)anObject {
