@@ -41,6 +41,7 @@
 
 @property (nonatomic, copy, readwrite) NSString *itunesAuthor;
 @property (nonatomic, copy, readwrite) NSString *itunesImageURLString;
+@property (nonatomic, copy, readwrite) NSString *itunesKeywords;
 
 - (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 - (void)rss_item:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
@@ -54,6 +55,7 @@
 @synthesize title, link, links, feedDescription, pubDate, items;
 @synthesize itunesAuthor;
 @synthesize itunesImageURLString;
+@synthesize itunesKeywords;
 
 + (void)initialize {
 	if (self == [FPFeed class]) {
@@ -64,6 +66,7 @@
         
         [self registerTextHandler:@selector(setItunesAuthor:) forElement:@"author" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(itunes_image:attributes:parser:) forElement:@"image" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        [self registerTextHandler:@selector(setItunesKeywords:) forElement:@"keywords" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         
 		for (NSString *key in [NSArray arrayWithObjects:
 							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate", @"category",
