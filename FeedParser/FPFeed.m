@@ -28,6 +28,7 @@
 #import "FPLink.h"
 #import "FPParser.h"
 #import "NSDate_FeedParserExtensions.h"
+#import "FPExtensionElementNode.h"
 
 @interface FPFeed ()
 {
@@ -42,6 +43,8 @@
 @property (nonatomic, copy, readwrite) NSString *itunesAuthor;
 @property (nonatomic, copy, readwrite) NSString *itunesImageURLString;
 @property (nonatomic, copy, readwrite) NSString *itunesKeywords;
+@property (nonatomic, copy, readwrite) NSArray *itunesCategories;
+@property (nonatomic, copy, readwrite) NSNumber *itunesIsExplicit;
 
 - (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 - (void)rss_item:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
@@ -56,6 +59,8 @@
 @synthesize itunesAuthor;
 @synthesize itunesImageURLString;
 @synthesize itunesKeywords;
+@synthesize itunesCategories;
+@synthesize itunesIsExplicit;
 
 + (void)initialize {
 	if (self == [FPFeed class]) {
@@ -67,9 +72,11 @@
         [self registerTextHandler:@selector(setItunesAuthor:) forElement:@"author" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(itunes_image:attributes:parser:) forElement:@"image" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(setItunesKeywords:) forElement:@"keywords" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        [self registerHandler:@selector(itunes_category:parser:) forElement:@"category" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        [self registerTextHandler:@selector(itunes_explicit:attributes:parser:) forElement:@"explicit" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         
 		for (NSString *key in [NSArray arrayWithObjects:
-							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate", @"category",
+							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate",
 							   @"generator", @"docs", @"cloud", @"ttl", @"image", @"rating", @"textInput", @"skipHours", @"skipDays", nil]) {
 			[self registerRSSHandler:NULL forElement:key type:FPXMLParserSkipElementType];
 		}
@@ -126,6 +133,24 @@
 - (void) itunes_image:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 {
     self.itunesImageURLString = [attributes valueForKey:@"href"];
+}
+
+- (void) itunes_explicit:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
+{
+    NSString *value = [textValue lowercaseString];
+    if (value)
+    {
+        self.itunesIsExplicit = [NSNumber numberWithBool:[value isEqualToString:@"yes"]];
+    }
+}
+
+- (void) itunes_category:(FPExtensionElementNode *)node parser:(NSXMLParser *)parser;
+{
+    if (self.itunesCategories == nil)
+    {
+        self.itunesCategories = [NSArray array];
+    }
+    self.itunesCategories = [self.itunesCategories arrayByAddingObject:[node.attributes valueForKey:@"text"]];
 }
 
 - (BOOL)isEqual:(id)anObject {

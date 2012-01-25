@@ -80,7 +80,7 @@
 		// Content
 		[self registerTextHandler:@selector(setContent:) forElement:@"encoded" namespaceURI:kFPXMLParserContentNamespaceURI];
 		// Media RSS
-		[self registerHandler:@selector(mediaRSS_attributes:parser:)forElement:@"content" namespaceURI:kFPXMLParserMediaRSSNamespaceURI type:FPXMLParserStreamElementType];
+		[self registerHandler:@selector(mediaRSS_attributes:parser:) forElement:@"content" namespaceURI:kFPXMLParserMediaRSSNamespaceURI type:FPXMLParserStreamElementType];
 		[self registerTextHandler:@selector(mediaRSS_thumbnail:attributes:parser:) forElement:@"thumbnail" namespaceURI:kFPXMLParserMediaRSSNamespaceURI];
 		
 		// Podcasts
