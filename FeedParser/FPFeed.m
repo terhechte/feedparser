@@ -45,6 +45,8 @@
 @property (nonatomic, copy, readwrite) NSString *itunesKeywords;
 @property (nonatomic, copy, readwrite) NSArray *itunesCategories;
 @property (nonatomic, copy, readwrite) NSNumber *itunesIsExplicit;
+@property (nonatomic, copy, readwrite) NSString *itunesOwnerName;
+@property (nonatomic, copy, readwrite) NSString *itunesOwnerEmail;
 
 - (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
 - (void)rss_item:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
@@ -61,6 +63,8 @@
 @synthesize itunesKeywords;
 @synthesize itunesCategories;
 @synthesize itunesIsExplicit;
+@synthesize itunesOwnerName;
+@synthesize itunesOwnerEmail;
 
 + (void)initialize {
 	if (self == [FPFeed class]) {
@@ -72,11 +76,16 @@
         [self registerTextHandler:@selector(setItunesAuthor:) forElement:@"author" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(itunes_image:attributes:parser:) forElement:@"image" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(setItunesKeywords:) forElement:@"keywords" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
-        [self registerHandler:@selector(itunes_category:parser:) forElement:@"category" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        [self registerHandler:@selector(itunes_category:parser:) forElement:@"category" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI type:FPXMLParserExtensionElementType];
         [self registerTextHandler:@selector(itunes_explicit:attributes:parser:) forElement:@"explicit" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         
+        [self registerHandler:@selector(itunes_owner:parser:) forElement:@"owner" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI type:FPXMLParserExtensionElementType];
+        [self registerTextHandler:@selector(itunes_ownername:attributes:parser:) forElement:@"name" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+
+        [self registerTextHandler:@selector(setItunesOwnerEmail:) forElement:@"email" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        
 		for (NSString *key in [NSArray arrayWithObjects:
-							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate",
+							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate", @"category",
 							   @"generator", @"docs", @"cloud", @"ttl", @"image", @"rating", @"textInput", @"skipHours", @"skipDays", nil]) {
 			[self registerRSSHandler:NULL forElement:key type:FPXMLParserSkipElementType];
 		}
@@ -119,10 +128,31 @@
 	[links addObject:aLink];
 }
 
+- (void) itunes_owner:(FPExtensionElementNode *)node parser:(NSXMLParser *)parser;
+{
+    for (FPExtensionNode *child in node.children)
+    {
+        if (child.isTextNode)
+        {
+            continue;
+        }
+        if ([child.name isEqualToString:@"name"]) 
+        {
+            self.itunesOwnerName = [child stringValue];
+        }
+        else
+        {
+            self.itunesOwnerEmail = [child stringValue];
+        }
+    }
+}
+
 - (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
 	NSString *href = [attributes objectForKey:@"href"];
 	if (href == nil) return; // sanity check
-	FPLink *aLink = [[FPLink alloc] initWithHref:href rel:[attributes objectForKey:@"rel"] type:[attributes objectForKey:@"type"]
+	FPLink *aLink = [[FPLink alloc] initWithHref:href
+                                             rel:[attributes objectForKey:@"rel"] 
+                                            type:[attributes objectForKey:@"type"]
 										   title:[attributes objectForKey:@"title"]];
 	if (link == nil && [aLink.rel isEqualToString:@"alternate"]) {
 		link = aLink;
@@ -151,6 +181,13 @@
         self.itunesCategories = [NSArray array];
     }
     self.itunesCategories = [self.itunesCategories arrayByAddingObject:[node.attributes valueForKey:@"text"]];
+    for (FPExtensionNode *child in node.children) //flatten hierarchy for now
+    {
+        if (child.isElement) 
+        {
+            [self itunes_category:child parser:parser];
+        }
+    }
 }
 
 - (BOOL)isEqual:(id)anObject {

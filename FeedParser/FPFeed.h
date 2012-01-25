@@ -49,6 +49,9 @@
 @property (nonatomic, copy, readonly) NSArray *itunesCategories;
 @property (nonatomic, copy, readonly) NSNumber *itunesIsExplicit;
 
+@property (nonatomic, copy, readonly) NSString *itunesOwnerName;
+@property (nonatomic, copy, readonly) NSString *itunesOwnerEmail;
+
 // parent class defines property NSArray *extensionElements
 // parent class defines method -(NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI
 // parent class defines method - (NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI elementName:(NSString *)elementName
