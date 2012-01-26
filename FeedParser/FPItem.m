@@ -153,7 +153,7 @@
 	NSString *url = [attributes objectForKey:@"url"];
 	NSString *type = [attributes objectForKey:@"type"];
 	NSString *lengthStr = [attributes objectForKey:@"length"];
-	if (url == nil || type == nil || lengthStr == nil) return; // sanity check
+	if (url == nil) return; // at minimum, url is required
 	NSUInteger length = [lengthStr integerValue];
 	FPEnclosure *anEnclosure = [[FPEnclosure alloc] initWithURL:url length:length type:type];
 	[enclosures addObject:anEnclosure];
