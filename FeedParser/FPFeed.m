@@ -181,7 +181,7 @@
         self.itunesCategories = [NSArray array];
     }
     self.itunesCategories = [self.itunesCategories arrayByAddingObject:[node.attributes valueForKey:@"text"]];
-    for (FPExtensionNode *child in node.children) //flatten hierarchy for now
+    for (FPExtensionElementNode *child in node.children) //flatten hierarchy for now
     {
         if (child.isElement) 
         {
