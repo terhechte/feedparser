@@ -37,6 +37,7 @@
 @property (nonatomic, copy, readwrite) NSDate *pubDate;
 @property (nonatomic, copy, readwrite) NSString *author;
 @property (nonatomic, copy, readwrite) NSString *category;
+@property (nonatomic, copy, readwrite) NSString *comments;
 //For use with MediaRSS
 @property (nonatomic, copy, readwrite) NSString *thumbnailURL;
 // for use with itunes podcasts
@@ -56,6 +57,7 @@
 
 @implementation FPItem
 @synthesize title, link, links, guid, description, content, pubDate, author, category, enclosures, thumbnailURL;
+@synthesize comments;
 @synthesize creator;
 @synthesize itunesAuthor,itunesSubtitle,itunesSummary,itunesBlock,itunesDuration,itunesKeywords,itunesExplict;
 
@@ -69,8 +71,9 @@
 		[self registerRSSHandler:@selector(rss_pubDate:attributes:parser:) forElement:@"pubDate" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(setCategory:) forElement:@"category" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(rss_enclosure:parser:) forElement:@"enclosure" type:FPXMLParserSkipElementType];
+        [self registerRSSHandler:@selector(comments:attributes:parser:) forElement:@"comments" type:FPXMLParserTextElementType];
 		
-		for (NSString *key in [NSArray arrayWithObjects:@"comments", @"source", nil]) {
+		for (NSString *key in [NSArray arrayWithObjects:@"source", nil]) {
 			[self registerRSSHandler:NULL forElement:key type:FPXMLParserSkipElementType];
 		}
 		// Atom
@@ -139,6 +142,11 @@
 		if([type isEqualToString:@"image/jpeg"] || [type isEqualToString:@"image/png"])
 			self.thumbnailURL = url;
 	}
+}
+
+- (void) comments:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
+{
+    self.comments = textValue;
 }
 
 - (void)rss_enclosure:(NSDictionary *)attributes parser:(NSXMLParser *)parser {

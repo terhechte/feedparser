@@ -71,6 +71,7 @@
 @property (nonatomic, copy, readonly) NSString *author;
 @property (nonatomic, copy, readonly) NSString *category;
 @property (nonatomic, copy, readonly) NSArray *enclosures;
+@property (nonatomic, copy, readonly) NSString *comments;
 // for use with media:thumbnail property
 @property (nonatomic, copy, readonly) NSString *thumbnailURL;
 // for use with itunes podcasts
