@@ -27,35 +27,43 @@
 #import "NSString_extensions.h"
 
 @implementation FPLink
-@synthesize href, rel, type, title;
-+ (id)linkWithHref:(NSString *)href rel:(NSString *)rel type:(NSString *)type title:(NSString *)title {
+
++ (id)linkWithHref:(NSString *)href rel:(NSString *)rel type:(NSString *)type title:(NSString *)title
+{
 	return [[self alloc] initWithHref:href rel:rel type:type title:title];
 }
 
-- (id)initWithHref:(NSString *)inHref rel:(NSString *)inRel type:(NSString *)inType title:(NSString *)inTitle {
+- (id)initWithHref:(NSString *)inHref rel:(NSString *)inRel type:(NSString *)inType title:(NSString *)inTitle
+{
 	if ((self = [super init])) {
-		href = [inHref copy];
-		rel = (inRel ? [inRel copy] : @"alternate");
-		type = [inType copy];
-		title = [inTitle copy];
+		_href = [inHref copy];
+		_rel = (inRel ? [inRel copy] : @"alternate");
+		_type = [inType copy];
+		_title = [inTitle copy];
 	}
 	return self;
 }
 
-- (BOOL)isEqual:(id)anObject {
+- (BOOL)isEqual:(id)anObject
+{
 	if (![anObject isKindOfClass:[FPLink class]]) return NO;
+
 	FPLink *other = (FPLink *)anObject;
-	return ((href  == other->href  || [href  isEqualToString:other->href]) &&
-			(rel   == other->rel   || [rel   isEqualToString:other->rel])  &&
-			(type  == other->type  || [type  isEqualToString:other->type]) &&
-			(title == other->title || [title isEqualToString:other->title]));
+	return ((_href  == other->_href  || [_href  isEqualToString:other->_href]) &&
+			(_rel   == other->_rel   || [_rel   isEqualToString:other->_rel])  &&
+			(_type  == other->_type  || [_type  isEqualToString:other->_type]) &&
+			(_title == other->_title || [_title isEqualToString:other->_title]));
 }
 
-- (NSString *)description {
+- (NSString *)description
+{
 	NSMutableArray *attributes = [NSMutableArray array];
-	for (NSString *key in [NSArray arrayWithObjects:@"rel", @"type", @"title", nil]) {
+
+	for (NSString *key in [NSArray arrayWithObjects:@"rel", @"type", @"title", nil])
+    {
 		NSString *value = [self valueForKey:key];
-		if (value != nil) {
+		if (value != nil)
+        {
 			[attributes addObject:[NSString stringWithFormat:@"%@=\"%@\"", key, [value fpEscapedString]]];
 		}
 	}
@@ -65,21 +73,24 @@
 #pragma mark -
 #pragma mark Coding Support
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-	if ((self = [super init])) {
-		href = [[aDecoder decodeObjectForKey:@"href"] copy];
-		rel = [[aDecoder decodeObjectForKey:@"rel"] copy];
-		type = [[aDecoder decodeObjectForKey:@"type"] copy];
-		title = [[aDecoder decodeObjectForKey:@"title"] copy];
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	if ((self = [super init]))
+    {
+		_href = [[aDecoder decodeObjectForKey:@"href"] copy];
+		_rel = [[aDecoder decodeObjectForKey:@"rel"] copy];
+		_type = [[aDecoder decodeObjectForKey:@"type"] copy];
+		_title = [[aDecoder decodeObjectForKey:@"title"] copy];
 	}
 	return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-	[aCoder encodeObject:href forKey:@"href"];
-	[aCoder encodeObject:rel forKey:@"rel"];
-	[aCoder encodeObject:type forKey:@"type"];
-	[aCoder encodeObject:title forKey:@"title"];
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+	[aCoder encodeObject:_href forKey:@"href"];
+	[aCoder encodeObject:_rel forKey:@"rel"];
+	[aCoder encodeObject:_type forKey:@"type"];
+	[aCoder encodeObject:_title forKey:@"title"];
 }
 
 @end

@@ -27,48 +27,56 @@
 
 
 @implementation FPEnclosure
-@synthesize url, length, type;
 
-+ (id)enclosureWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type {
++ (id)enclosureWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type
+{
 	return [[self alloc] initWithURL:url length:length type:type];
 }
 
-- (id)initWithURL:(NSString *)inurl length:(NSUInteger)inlength type:(NSString *)intype {
-	if ((self = [super init])) {
-		url = [inurl copy];
-		length = inlength;
-		type = [intype copy];
+- (id)initWithURL:(NSString *)inurl length:(NSUInteger)inlength type:(NSString *)intype
+{
+	if ((self = [super init]))
+    {
+		_url = [inurl copy];
+		_length = inlength;
+		_type = [intype copy];
 	}
 	return self;
 }
 
-- (BOOL)isEqual:(id)object {
+- (BOOL)isEqual:(id)object
+{
 	if (![object isKindOfClass:[FPEnclosure class]]) return NO;
+    
 	FPEnclosure *other = (FPEnclosure *)object;
-	return ((url    == other->url  || [url  isEqualToString:other->url]) &&
-			(type   == other->type || [type isEqualToString:other->type]) &&
-			(length == other->length));
+	return ((_url    == other->_url  || [_url  isEqualToString:other->_url]) &&
+			(_type   == other->_type || [_type isEqualToString:other->_type]) &&
+			(_length == other->_length));
 }
 
-- (NSString *)description {
+- (NSString *)description
+{
 	return [NSString stringWithFormat:@"<%@: %@ (length=%lu type=\"%@\")>", NSStringFromClass([self class]), self.url, (unsigned long)self.length, self.type];
 }
 
 #pragma mark -
 #pragma mark Coding Support
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-	if ((self = [super init])) {
-		url = [[aDecoder decodeObjectForKey:@"url"] copy];
-		length = [[aDecoder decodeObjectForKey:@"length"] unsignedIntegerValue];
-		type = [[aDecoder decodeObjectForKey:@"type"] copy];
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	if ((self = [super init]))
+    {
+		_url = [[aDecoder decodeObjectForKey:@"url"] copy];
+		_length = [[aDecoder decodeObjectForKey:@"length"] unsignedIntegerValue];
+		_type = [[aDecoder decodeObjectForKey:@"type"] copy];
 	}
 	return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-	[aCoder encodeObject:url forKey:@"url"];
-	[aCoder encodeObject:[NSNumber numberWithUnsignedInteger:length] forKey:@"length"];
-	[aCoder encodeObject:type forKey:@"type"];
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+	[aCoder encodeObject:_url forKey:@"url"];
+	[aCoder encodeObject:@(_length) forKey:@"length"];
+	[aCoder encodeObject:_type forKey:@"type"];
 }
 @end

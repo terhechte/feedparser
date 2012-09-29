@@ -28,35 +28,44 @@
 #import "FPExtensionTextNode.h"
 
 @implementation FPExtensionNode
-- (BOOL)isElement {
+
+- (BOOL)isElement
+{
 	return NO;
 }
 
-- (BOOL)isTextNode {
+- (BOOL)isTextNode
+{
 	return NO;
 }
 
-- (NSString *)stringValue {
+- (NSString *)stringValue
+{
 	return nil;
 }
 
-- (NSString *)name {
+- (NSString *)name
+{
 	return nil;
 }
 
-- (NSString *)qualifiedName {
+- (NSString *)qualifiedName
+{
 	return nil;
 }
 
-- (NSString *)namespaceURI {
+- (NSString *)namespaceURI
+{
 	return nil;
 }
 
-- (NSDictionary *)attributes {
+- (NSDictionary *)attributes
+{
 	return nil;
 }
 
-- (NSArray *)children {
+- (NSArray *)children
+{
 	return nil;
 }
 
@@ -64,11 +73,13 @@
 #pragma mark Coding Support
 
 // these are just shims, to declare that this class should support coding
-- (id)initWithCoder:(NSCoder *)aDecoder {
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
 	return [super init];
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder {
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
 	// no-op
 }
 @end

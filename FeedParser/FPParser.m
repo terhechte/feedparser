@@ -29,65 +29,95 @@
 
 NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 
+@interface FPParser ()
+
+@property (nonatomic, strong, readwrite) FPFeed *feed;
+@property (nonatomic, copy, readwrite) NSString *errorString;
+@property (nonatomic, assign, readwrite) BOOL lookingForChannel;
+
+@end
+
+
 @implementation FPParser
-+ (void)initialize {
-	if (self == [FPParser class]) {
+
++ (void)initialize
+{
+	if (self == [FPParser class])
+    {
 		[self registerRSSHandler:@selector(rss_rss:parser:) forElement:@"rss" type:FPXMLParserStreamElementType];
 		[self registerRSSHandler:@selector(rss_channel:parser:) forElement:@"channel" type:FPXMLParserStreamElementType];
 		[self registerAtomHandler:@selector(atom_feed:parser:) forElement:@"feed" type:FPXMLParserStreamElementType];
 	}
 }
 
-+ (FPFeed *)parsedFeedWithData:(NSData *)data error:(NSError **)error {
++ (FPFeed *)parsedFeedWithData:(NSData *)data error:(NSError **)error
+{
 	FPParser *parser = [[[self class] alloc] init];
 	return [parser parseData:data error:error];
 }
 
-+ (FPFeed *)parsedFeedWithStream:(NSInputStream *)stream error:(NSError **)error {
++ (FPFeed *)parsedFeedWithStream:(NSInputStream *)stream error:(NSError **)error
+{
     FPParser *parser = [[[self class] alloc] init];
     return [parser parseStream:stream error:error];
 }
 
 #pragma mark -
 
-- (FPFeed *)newFeedWithBaseNamespaceURI: (NSString *)namespaceURI {
+- (FPFeed *)newFeedWithBaseNamespaceURI: (NSString *)namespaceURI
+{
 	return [[FPFeed alloc] initWithBaseNamespaceURI: namespaceURI];
 }
 
-- (FPFeed *)useParser:(NSXMLParser *)xmlParser error:(NSError **)error {
-	if (xmlParser == nil) {
+- (FPFeed *)useParser:(NSXMLParser *)xmlParser error:(NSError **)error
+{
+	if (xmlParser == nil)
+    {
 		if (error) *error = [NSError errorWithDomain:FPParserErrorDomain code:FPParserInternalError userInfo:nil];
 		return nil;
 	}
+
 	parseDepth = 1;
 	[xmlParser setDelegate:self];
 	[xmlParser setShouldProcessNamespaces:YES];
     
-	if ([xmlParser parse]) {
-		if (feed != nil) {
-			FPFeed *retFeed = feed;
-			feed = nil;
+	if ([xmlParser parse])
+    {
+		if (_feed != nil)
+        {
+			FPFeed *retFeed = _feed;
+			_feed = nil;
 			return retFeed;
-		} else {
+		}
+        else
+        {
 			// nil means we aborted, but NSXMLParser didn't record the error
 			// there's a bug in NSXMLParser which means aborting in some cases produces no error value
-			if (errorString == nil) {
+			if (_errorString == nil)
+            {
 				// no errorString means the parse actually succeeded, but didn't contain a feed
-				errorString = @"The XML document did not contain a feed";
+				_errorString = @"The XML document did not contain a feed";
 			}
-			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorString forKey:NSLocalizedDescriptionKey];
+			NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : _errorString };
 
 			if (error) *error = [NSError errorWithDomain:FPParserErrorDomain code:FPParserInvalidFeedError userInfo:userInfo];
 			return nil;
 		}
-	} else {
-		if (error) {
+	}
+    else
+    {
+		if (error)
+        {
 			*error = [xmlParser parserError];
-			if ([[*error domain] isEqualToString:NSXMLParserErrorDomain]) {
-				if ([*error code] == NSXMLParserInternalError) {
-					NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorString forKey:NSLocalizedDescriptionKey];
+			if ([[*error domain] isEqualToString:NSXMLParserErrorDomain])
+            {
+				if ([*error code] == NSXMLParserInternalError)
+                {
+                    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : _errorString };
 					*error = [NSError errorWithDomain:FPParserErrorDomain code:FPParserInternalError userInfo:userInfo];
-				} else {
+				}
+                else
+                {
 					// adjust the error localizedDescription to include the line/column numbers
 					NSString *desc = [NSString stringWithFormat:@"line %ld, column %ld: %@",
 									  (long)[xmlParser lineNumber],
@@ -104,62 +134,82 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 }
 
 
-- (FPFeed *)parseStream:(NSInputStream *)inputStream error:(NSError **)error {
+- (FPFeed *)parseStream:(NSInputStream *)inputStream error:(NSError **)error
+{
     NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithStream:inputStream];
     return [self useParser:xmlParser error:error];
 }
 
-- (FPFeed *)parseData:(NSData *)data error:(NSError **)error {
+- (FPFeed *)parseData:(NSData *)data error:(NSError **)error
+{
 	NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
     return [self useParser:xmlParser error:error];
 }
 
-- (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description {
-	if (description == nil) {
-		errorString = [[NSString alloc] initWithFormat:@"Invalid feed data at line %ld", (long)[parser lineNumber]];
-	} else {
-		errorString = [[NSString alloc] initWithFormat:@"Invalid feed data at line %ld: %@", (long)[parser lineNumber], description];
+- (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description
+{
+	if (description == nil)
+    {
+		_errorString = [[NSString alloc] initWithFormat:@"Invalid feed data at line %ld", (long)[parser lineNumber]];
+	}
+    else
+    {
+		_errorString = [[NSString alloc] initWithFormat:@"Invalid feed data at line %ld: %@", (long)[parser lineNumber], description];
 	}
 	[super abortParsing:parser withString:description];
 }
 
 #pragma mark XML Parser methods
 
-- (void)parserDidStartDocument:(NSXMLParser *)parser {
-	lookingForChannel = NO;
+- (void)parserDidStartDocument:(NSXMLParser *)parser
+{
+	_lookingForChannel = NO;
 }
 
 #pragma mark Element handlers
 
 - (void)rss_rss:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
-	if (feed != nil || lookingForChannel) {
+	if (_feed != nil || _lookingForChannel)
+    {
 		[self abortParsing:parser];
-	} else {
+	}
+    else
+    {
 		NSString *version = [attributes objectForKey:@"version"];
 		if ([version isEqualToString:@"2.0"] || [version isEqualToString:@"0.92"] || [version isEqualToString:@"0.91"]) {
-			lookingForChannel = YES;
-		} else {
+			_lookingForChannel = YES;
+		}
+        else
+        {
 			[self abortParsing:parser];
 		}
 	}
 }
 
-- (void)rss_channel:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
-	if (feed != nil || !lookingForChannel) {
+- (void)rss_channel:(NSDictionary *)attributes parser:(NSXMLParser *)parser
+{
+	if (_feed != nil || !_lookingForChannel) {
 		[self abortParsing:parser];
-	} else {
-		feed = [self newFeedWithBaseNamespaceURI: baseNamespaceURI];
-		[feed acceptParsing:parser];
-		lookingForChannel = NO;
+	}
+    else
+    {
+		_feed = [self newFeedWithBaseNamespaceURI: baseNamespaceURI];
+		[_feed acceptParsing:parser];
+		_lookingForChannel = NO;
 	}
 }
 
-- (void)atom_feed:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
-	if (feed != nil || lookingForChannel) {
+- (void)atom_feed:(NSDictionary *)attributes parser:(NSXMLParser *)parser
+{
+	if (_feed != nil || _lookingForChannel)
+    {
 		[self abortParsing:parser];
-	} else {
-		feed = [self newFeedWithBaseNamespaceURI: baseNamespaceURI];
-		[feed acceptParsing:parser];
+	}
+    else
+    {
+		_feed = [self newFeedWithBaseNamespaceURI: baseNamespaceURI];
+		[_feed acceptParsing:parser];
 	}
 }
+
 @end

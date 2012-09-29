@@ -56,4 +56,5 @@
 // parent class defines method -(NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI
 // parent class defines method - (NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI elementName:(NSString *)elementName
 - (FPItem *)newItemWithBaseNamespaceURI:(NSString *)namespaceURI;
+
 @end

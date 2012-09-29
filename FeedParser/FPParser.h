@@ -28,14 +28,11 @@
 
 @class FPFeed;
 
-@interface FPParser : FPXMLParser {
-@private
-	FPFeed *feed;
-	NSString *errorString;
-	BOOL lookingForChannel;
-}
+@interface FPParser : FPXMLParser
+
 + (FPFeed *)parsedFeedWithData:(NSData *)data error:(NSError **)error;
 + (FPFeed *)parsedFeedWithStream:(NSInputStream *)stream error:(NSError **)error;
 - (FPFeed *)parseData:(NSData *)data error:(NSError **)error;
 - (FPFeed *)parseStream:(NSInputStream *)inputStream error:(NSError **)error;
+
 @end

@@ -26,15 +26,13 @@
 #import <Foundation/Foundation.h>
 
 
-@interface FPEnclosure : NSObject <NSCoding> {
-@private
-	NSString *url;
-	NSUInteger length;
-	NSString *type;
-}
+@interface FPEnclosure : NSObject <NSCoding>
+
 @property (nonatomic, readonly) NSString *url;
 @property (nonatomic, readonly) NSUInteger length;
 @property (nonatomic, readonly) NSString *type;
+
 + (id)enclosureWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type;
 - (id)initWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type;
+
 @end

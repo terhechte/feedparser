@@ -28,30 +28,8 @@
 
 @class FPLink;
 
-@interface FPItem : FPXMLParser <NSCoding> {
-@private
-	NSString *title;
-	FPLink *link;
-	NSMutableArray *links;
-	NSString *guid;
-	NSString *description;
-	NSString *content;
-	NSDate *pubDate;
-	NSString *creator; // <dc:creator>
-	NSString *author;
-	NSString *category;
-	NSMutableArray *enclosures;
-	//MediaRSS
-	NSString *thumbnailURL;
-	//Podcasts
-	NSString *itunesAuthor;
-	NSString *itunesSubtitle;
-	NSString *itunesSummary;
-	NSString *itunesBlock;
-	NSString *itunesDuration;
-	NSString *itunesKeywords;
-	NSString *itunesExplict;
-}
+@interface FPItem : FPXMLParser <NSCoding>
+
 @property (nonatomic, copy, readonly) NSString *title;
 // RSS <link> or Atom <link rel="alternate">
 // If multiple qualifying links exist, returns the first
@@ -60,7 +38,7 @@
 // RSS <link> elements are treated as Atom <link rel="alternate"> elements
 @property (nonatomic, copy, readonly) NSArray *links;
 @property (nonatomic, copy, readonly) NSString *guid;
-@property (nonatomic, copy, readonly) NSString *description;
+@property (nonatomic, copy, readonly) NSString *itemDescription;
 // The content property is, in most feeds, the same thing as the description property.
 // However, if a feed contains a <content:encoded> tag, the content property will
 // contain that data instead. The description tag will always contain the <description> tag.
@@ -82,6 +60,7 @@
 @property (nonatomic, copy, readonly) NSString *itunesDuration;
 @property (nonatomic, copy, readonly) NSString *itunesKeywords;
 @property (nonatomic, copy, readonly) NSString *itunesExplict;
+
 // parent class defines property NSArray *extensionElements
 // parent class defines method - (NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI
 // parent class defines method - (NSArray *)extensionElementsWithXMLNamespace:(NSString *)namespaceURI elementName:(NSString *)elementName

@@ -31,7 +31,7 @@
 @interface FPItem ()
 @property (nonatomic, copy, readwrite) NSString *title;
 @property (nonatomic, copy, readwrite) NSString *guid;
-@property (nonatomic, copy, readwrite) NSString *description;
+@property (nonatomic, copy, readwrite) NSString *itemDescription;
 @property (nonatomic, copy, readwrite) NSString *content;
 @property (nonatomic, copy, readwrite) NSString *creator;
 @property (nonatomic, copy, readwrite) NSDate *pubDate;
@@ -49,31 +49,29 @@
 @property (nonatomic, copy, readwrite) NSString *itunesKeywords;
 @property (nonatomic, copy, readwrite) NSString *itunesExplict;
 
-- (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-- (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-- (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-- (void)rss_enclosure:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
+@property (nonatomic, strong, readwrite) NSMutableArray *itemLinks;
+@property (nonatomic, strong, readwrite) NSMutableArray *itemEnclosures;
+
 @end
 
 @implementation FPItem
-@synthesize title, link, links, guid, description, content, pubDate, author, category, enclosures, thumbnailURL;
-@synthesize comments;
-@synthesize creator;
-@synthesize itunesAuthor,itunesSubtitle,itunesSummary,itunesBlock,itunesDuration,itunesKeywords,itunesExplict;
 
-+ (void)initialize {
-	if (self == [FPItem class]) {
++ (void)initialize
+{
+	if (self == [FPItem class])
+    {
 		[self registerRSSHandler:@selector(setTitle:) forElement:@"title" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(setAuthor:) forElement:@"author" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(rss_link:attributes:parser:) forElement:@"link" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(setGuid:) forElement:@"guid" type:FPXMLParserTextElementType];
-		[self registerRSSHandler:@selector(setDescription:) forElement:@"description" type:FPXMLParserTextElementType];
+		[self registerRSSHandler:@selector(setItemDescription:) forElement:@"description" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(rss_pubDate:attributes:parser:) forElement:@"pubDate" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(setCategory:) forElement:@"category" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(rss_enclosure:parser:) forElement:@"enclosure" type:FPXMLParserSkipElementType];
         [self registerRSSHandler:@selector(comments:attributes:parser:) forElement:@"comments" type:FPXMLParserTextElementType];
 		
-		for (NSString *key in [NSArray arrayWithObjects:@"source", nil]) {
+		for (NSString *key in [NSArray arrayWithObjects:@"source", nil])
+        {
 			[self registerRSSHandler:NULL forElement:key type:FPXMLParserSkipElementType];
 		}
 		// Atom
@@ -98,49 +96,75 @@
 	}
 }
 
-- (id)initWithBaseNamespaceURI:(NSString *)namespaceURI {
-	if ((self = [super initWithBaseNamespaceURI:namespaceURI])) {
-		links = [[NSMutableArray alloc] init];
-		enclosures = [[NSMutableArray alloc] init];
+- (id)initWithBaseNamespaceURI:(NSString *)namespaceURI
+{
+	if ((self = [super initWithBaseNamespaceURI:namespaceURI]))
+    {
+		_itemLinks = [[NSMutableArray alloc] init];
+		_itemEnclosures = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
 
-- (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
+- (NSArray *)links;
+{
+    return [NSArray arrayWithArray:self.itemLinks];
+}
+
+- (NSArray *)enclosures;
+{
+    return [NSArray arrayWithArray:self.itemEnclosures];
+}
+
+- (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser
+{
 	self.pubDate = [NSDate dateWithRFC822:textValue];
 }
 
-- (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
+- (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser
+{
 	FPLink *aLink = [[FPLink alloc] initWithHref:textValue rel:@"alternate" type:nil title:nil];
-	if (link == nil) {
-		link = aLink;
+
+	if (link == nil)
+    {
+		_link = aLink;
 	}
-	[links addObject:aLink];
+	[_itemLinks addObject:aLink];
 }
 
-- (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
+- (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser
+{
 	NSString *href = [attributes objectForKey:@"href"];
 	if (href == nil) return; // sanity check
+
 	FPLink *aLink = [[FPLink alloc] initWithHref:href rel:[attributes objectForKey:@"rel"] type:[attributes objectForKey:@"type"]
 										   title:[attributes objectForKey:@"title"]];
-	if (link == nil && [aLink.rel isEqualToString:@"alternate"]) {
-		link = aLink;
+	if (link == nil && [aLink.rel isEqualToString:@"alternate"])
+    {
+		_link = aLink;
 	}
-	[links addObject:aLink];
+	[_itemLinks addObject:aLink];
 }
 
--(void) mediaRSS_thumbnail:(NSString *)text attributes:(NSDictionary*)attributes parser:(NSXMLParser *)parser{
+- (void) mediaRSS_thumbnail:(NSString *)text attributes:(NSDictionary*)attributes parser:(NSXMLParser *)parser
+{
 	NSString *url = [attributes objectForKey:@"url"];
 	if(!url) return;
+
 	self.thumbnailURL = url;
 }
 
--(void) mediaRSS_attributes:(NSDictionary*)attributes parser:(NSXMLParser *)parser {
+- (void) mediaRSS_attributes:(NSDictionary*)attributes parser:(NSXMLParser *)parser
+{
 	NSString *type = [attributes objectForKey:@"type"];
 	NSString *url = [attributes objectForKey:@"url"];
-	if(type && url){
+
+	if(type && url)
+    {
 		if([type isEqualToString:@"image/jpeg"] || [type isEqualToString:@"image/png"])
-			self.thumbnailURL = url;
+        {
+            self.thumbnailURL = url;
+        }
 	}
 }
 
@@ -149,93 +173,101 @@
     self.comments = textValue;
 }
 
-- (void)rss_enclosure:(NSDictionary *)attributes parser:(NSXMLParser *)parser {
+- (void)rss_enclosure:(NSDictionary *)attributes parser:(NSXMLParser *)parser
+{
 	NSString *url = [attributes objectForKey:@"url"];
 	NSString *type = [attributes objectForKey:@"type"];
 	NSString *lengthStr = [attributes objectForKey:@"length"];
 	if (url == nil) return; // at minimum, url is required
+
 	NSUInteger length = [lengthStr integerValue];
 	FPEnclosure *anEnclosure = [[FPEnclosure alloc] initWithURL:url length:length type:type];
-	[enclosures addObject:anEnclosure];
+	[_itemEnclosures addObject:anEnclosure];
 }
 
-- (NSString *)content {
-	return (content ?: description);
+- (NSString *)content
+{
+	return (_content ?: _itemDescription);
 }
 
-- (BOOL)isEqual:(id)anObject {
+- (BOOL)isEqual:(id)anObject
+{
 	if (![anObject isKindOfClass:[FPItem class]]) return NO;
+    
 	FPItem *other = (FPItem *)anObject;
-	return ((title       == other->title       || [title       isEqualToString:other->title])       &&
-			(link        == other->link        || [link        isEqual:other->link])                &&
-			(links       == other->links       || [links       isEqualToArray:other->links])        &&
-			(guid        == other->guid        || [guid        isEqualToString:other->guid])        &&
-			(description == other->description || [description isEqualToString:other->description]) &&
-			(content     == other->content     || [content     isEqualToString:other->content])     &&
-			(pubDate     == other->pubDate     || [pubDate     isEqual:other->pubDate])             &&
-			(creator     == other->creator     || [creator     isEqualToString:other->creator])     &&
-			(author      == other->author      || [author      isEqualToString:other->author])      &&
-			(author      == other->category    || [category    isEqualToString:other->category])    &&
-			(thumbnailURL   == other->thumbnailURL   || [thumbnailURL   isEqualToString:other->thumbnailURL])   &&
-			(itunesAuthor   == other->itunesAuthor   || [itunesAuthor   isEqualToString:other->itunesAuthor])   &&
-			(itunesSubtitle == other->itunesSubtitle || [itunesSubtitle isEqualToString:other->itunesSubtitle]) &&
-			(itunesSummary  == other->itunesSummary  || [itunesSummary  isEqualToString:other->itunesSummary])  &&
-			(itunesBlock    == other->itunesBlock    || [itunesBlock    isEqualToString:other->itunesBlock])    &&
-			(itunesDuration == other->itunesDuration || [itunesDuration isEqualToString:other->itunesDuration]) &&
-			(itunesKeywords == other->itunesKeywords || [itunesKeywords isEqualToString:other->itunesKeywords]) &&
-			(itunesExplict  == other->itunesExplict  || [itunesExplict  isEqualToString:other->itunesExplict])  &&
-			(enclosures  == other->enclosures || [enclosures  isEqualToArray:other->enclosures]));
+	return ((_title       == other->_title       || [_title       isEqualToString:other->_title])       &&
+			(_link        == other->_link        || [_link        isEqual:other->_link])                &&
+			(_itemLinks       == other->_itemLinks       || [_itemLinks       isEqualToArray:other->_itemLinks])        &&
+			(_guid        == other->_guid        || [_guid        isEqualToString:other->_guid])        &&
+			(_itemDescription == other->_itemDescription || [_itemDescription isEqualToString:other->_itemDescription]) &&
+			(_content     == other->_content     || [_content     isEqualToString:other->_content])     &&
+			(_pubDate     == other->_pubDate     || [_pubDate     isEqual:other->_pubDate])             &&
+			(_creator     == other->_creator     || [_creator     isEqualToString:other->_creator])     &&
+			(_author      == other->_author      || [_author      isEqualToString:other->_author])      &&
+			(_author      == other->_category    || [_category    isEqualToString:other->_category])    &&
+			(_thumbnailURL   == other->_thumbnailURL   || [_thumbnailURL   isEqualToString:other->_thumbnailURL])   &&
+			(_itunesAuthor   == other->_itunesAuthor   || [_itunesAuthor   isEqualToString:other->_itunesAuthor])   &&
+			(_itunesSubtitle == other->_itunesSubtitle || [_itunesSubtitle isEqualToString:other->_itunesSubtitle]) &&
+			(_itunesSummary  == other->_itunesSummary  || [_itunesSummary  isEqualToString:other->_itunesSummary])  &&
+			(_itunesBlock    == other->_itunesBlock    || [_itunesBlock    isEqualToString:other->_itunesBlock])    &&
+			(_itunesDuration == other->_itunesDuration || [_itunesDuration isEqualToString:other->_itunesDuration]) &&
+			(_itunesKeywords == other->_itunesKeywords || [_itunesKeywords isEqualToString:other->_itunesKeywords]) &&
+			(_itunesExplict  == other->_itunesExplict  || [_itunesExplict  isEqualToString:other->_itunesExplict])  &&
+			(_itemEnclosures  == other->_itemEnclosures || [_itemEnclosures  isEqualToArray:other->_itemEnclosures]));
 }
 
 #pragma mark -
 #pragma mark Coding Support
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-	if ((self = [super initWithCoder:aDecoder])) {
-		title = [[aDecoder decodeObjectForKey:@"title"] copy];
-		link = [aDecoder decodeObjectForKey:@"link"];
-		links = [[aDecoder decodeObjectForKey:@"links"] mutableCopy];
-		guid = [[aDecoder decodeObjectForKey:@"guid"] copy];
-		description = [[aDecoder decodeObjectForKey:@"description"] copy];
-		content = [[aDecoder decodeObjectForKey:@"content"] copy];
-		pubDate = [[aDecoder decodeObjectForKey:@"pubDate"] copy];
-		creator = [[aDecoder decodeObjectForKey:@"creator"] copy];
-		author = [[aDecoder decodeObjectForKey:@"author"] copy];
-		category = [[aDecoder decodeObjectForKey:@"category"] copy];
-		enclosures = [[aDecoder decodeObjectForKey:@"enclosures"] mutableCopy];
-		thumbnailURL = [[aDecoder decodeObjectForKey:@"thumbnailURL"] copy];
-		itunesAuthor = [[aDecoder decodeObjectForKey:@"itunesAuthor"] copy];
-		itunesSubtitle = [[aDecoder decodeObjectForKey:@"itunesSubtitle"] copy];
-		itunesSummary = [[aDecoder decodeObjectForKey:@"itunesSummary"] copy];
-		itunesBlock = [[aDecoder decodeObjectForKey:@"itunesBlock"] copy];
-		itunesDuration = [[aDecoder decodeObjectForKey:@"itunesDuration"] copy];
-		itunesKeywords = [[aDecoder decodeObjectForKey:@"itunesKeywords"] copy];
-		itunesExplict = [[aDecoder decodeObjectForKey:@"itunesExplict"] copy];
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	if ((self = [super initWithCoder:aDecoder]))
+    {
+		_title = [[aDecoder decodeObjectForKey:@"title"] copy];
+		_link = [aDecoder decodeObjectForKey:@"link"];
+		_itemLinks = [[aDecoder decodeObjectForKey:@"links"] mutableCopy];
+		_guid = [[aDecoder decodeObjectForKey:@"guid"] copy];
+		_itemDescription = [[aDecoder decodeObjectForKey:@"description"] copy];
+		_content = [[aDecoder decodeObjectForKey:@"content"] copy];
+		_pubDate = [[aDecoder decodeObjectForKey:@"pubDate"] copy];
+		_creator = [[aDecoder decodeObjectForKey:@"creator"] copy];
+		_author = [[aDecoder decodeObjectForKey:@"author"] copy];
+		_category = [[aDecoder decodeObjectForKey:@"category"] copy];
+		_itemEnclosures = [[aDecoder decodeObjectForKey:@"enclosures"] mutableCopy];
+		_thumbnailURL = [[aDecoder decodeObjectForKey:@"thumbnailURL"] copy];
+		_itunesAuthor = [[aDecoder decodeObjectForKey:@"itunesAuthor"] copy];
+		_itunesSubtitle = [[aDecoder decodeObjectForKey:@"itunesSubtitle"] copy];
+		_itunesSummary = [[aDecoder decodeObjectForKey:@"itunesSummary"] copy];
+		_itunesBlock = [[aDecoder decodeObjectForKey:@"itunesBlock"] copy];
+		_itunesDuration = [[aDecoder decodeObjectForKey:@"itunesDuration"] copy];
+		_itunesKeywords = [[aDecoder decodeObjectForKey:@"itunesKeywords"] copy];
+		_itunesExplict = [[aDecoder decodeObjectForKey:@"itunesExplict"] copy];
 	}
 	return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder {
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
 	[super encodeWithCoder:aCoder];
-	[aCoder encodeObject:title forKey:@"title"];
-	[aCoder encodeObject:link forKey:@"link"];
-	[aCoder encodeObject:links forKey:@"links"];
-	[aCoder encodeObject:guid forKey:@"guid"];
-	[aCoder encodeObject:description forKey:@"description"];
-	[aCoder encodeObject:content forKey:@"content"];
-	[aCoder encodeObject:pubDate forKey:@"pubDate"];
-	[aCoder encodeObject:creator forKey:@"creator"];
-	[aCoder encodeObject:author forKey:@"author"];
-	[aCoder encodeObject:category forKey:@"category"];
-	[aCoder encodeObject:enclosures forKey:@"enclosures"];
-	[aCoder encodeObject:thumbnailURL forKey:@"thumbnailURL"];
-	[aCoder encodeObject:itunesAuthor forKey:@"itunesAuthor"];
-	[aCoder encodeObject:itunesSubtitle forKey:@"itunesSubtitle"];
-	[aCoder encodeObject:itunesSummary forKey:@"itunesSummary"];
-	[aCoder encodeObject:itunesBlock forKey:@"itunesBlock"];
-	[aCoder encodeObject:itunesDuration forKey:@"itunesDuration"];
-	[aCoder encodeObject:itunesKeywords forKey:@"itunesKeywords"];
-	[aCoder encodeObject:itunesExplict forKey:@"itunesExplict"];
+	[aCoder encodeObject:_title forKey:@"title"];
+	[aCoder encodeObject:_link forKey:@"link"];
+	[aCoder encodeObject:_itemLinks forKey:@"links"];
+	[aCoder encodeObject:_guid forKey:@"guid"];
+	[aCoder encodeObject:_itemDescription forKey:@"description"];
+	[aCoder encodeObject:_content forKey:@"content"];
+	[aCoder encodeObject:_pubDate forKey:@"pubDate"];
+	[aCoder encodeObject:_creator forKey:@"creator"];
+	[aCoder encodeObject:_author forKey:@"author"];
+	[aCoder encodeObject:_category forKey:@"category"];
+	[aCoder encodeObject:_itemEnclosures forKey:@"enclosures"];
+	[aCoder encodeObject:_thumbnailURL forKey:@"thumbnailURL"];
+	[aCoder encodeObject:_itunesAuthor forKey:@"itunesAuthor"];
+	[aCoder encodeObject:_itunesSubtitle forKey:@"itunesSubtitle"];
+	[aCoder encodeObject:_itunesSummary forKey:@"itunesSummary"];
+	[aCoder encodeObject:_itunesBlock forKey:@"itunesBlock"];
+	[aCoder encodeObject:_itunesDuration forKey:@"itunesDuration"];
+	[aCoder encodeObject:_itunesKeywords forKey:@"itunesKeywords"];
+	[aCoder encodeObject:_itunesExplict forKey:@"itunesExplict"];
 }
 
 @end

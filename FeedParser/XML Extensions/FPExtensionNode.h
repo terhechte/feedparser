@@ -28,8 +28,8 @@
 // FPExtensionNode is used to represent extension elements outside of the RSS/Atom namespaces
 // conceptually this is an extremely simplified NSXMLNode
 // it can represent either textual data (FPExtensionTextNode) or an element (FPExtensionElementNode)
-@interface FPExtensionNode : NSObject <NSCoding> {
-}
+@interface FPExtensionNode : NSObject <NSCoding>
+
 @property (nonatomic, readonly) BOOL isElement;
 @property (nonatomic, readonly) BOOL isTextNode;
 
@@ -45,4 +45,5 @@
 @property (nonatomic, readonly) NSString *namespaceURI;
 @property (nonatomic, readonly) NSDictionary *attributes;
 @property (nonatomic, readonly) NSArray *children; // an array of FPExtensionNodes
+
 @end

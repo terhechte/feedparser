@@ -29,15 +29,28 @@
 #import "FPExtensionTextNode.h"
 
 @interface FPExtensionElementNode ()
+{
+	NSString *name;
+	NSString *qualifiedName;
+	NSString *namespaceURI;
+	NSDictionary *attributes;
+	NSMutableArray *children;
+	// parsing ivars
+	id<FPXMLParserProtocol> parentParser;
+	NSMutableString *currentText;
+}
+
 - (void)closeTextNode;
+
 @end
 
 @implementation FPExtensionElementNode
-@synthesize name, qualifiedName, namespaceURI, attributes, children;
 
 - (id)initWithElementName:(NSString *)aName namespaceURI:(NSString *)aNamespaceURI qualifiedName:(NSString *)qName
-			   attributes:(NSDictionary *)attributeDict {
-	if ((self = [super init])) {
+			   attributes:(NSDictionary *)attributeDict
+{
+	if ((self = [super init]))
+    {
 		name = [aName copy];
 		qualifiedName = [qName copy];
 		namespaceURI = [aNamespaceURI copy];
@@ -47,23 +60,31 @@
 	return self;
 }
 
-- (BOOL)isElement {
+- (BOOL)isElement
+{
 	return YES;
 }
 
-- (NSString *)description {
+- (NSString *)description
+{
 	return [NSString stringWithFormat:@"<%@: %p <%@>>", NSStringFromClass([self class]), self, qualifiedName];
 }
 
-- (NSString *)stringValue {
-	if ([children count] == 1) {
+- (NSString *)stringValue
+{
+	if ([children count] == 1)
+    {
 		// optimize for single child
 		return [[children objectAtIndex:0] stringValue];
-	} else {
+	}
+    else
+    {
 		NSMutableString *stringValue = [NSMutableString string];
-		for (FPExtensionNode *child in children) {
+		for (FPExtensionNode *child in children)
+        {
 			NSString *str = child.stringValue;
-			if (str != nil) {
+			if (str != nil)
+            {
 				[stringValue appendString:str];
 			}
 		}
@@ -71,14 +92,17 @@
 	}
 }
 
-- (void)closeTextNode {
+- (void)closeTextNode
+{
 	FPExtensionTextNode *child = [[FPExtensionTextNode alloc] initWithStringValue:currentText];
 	[children addObject:child];
 	currentText = nil;
 }
 
-- (BOOL)isEqual:(id)anObject {
+- (BOOL)isEqual:(id)anObject
+{
 	if (![anObject isKindOfClass:[FPExtensionElementNode class]]) return NO;
+
 	FPExtensionElementNode *other = (FPExtensionElementNode *)anObject;
 	return ((name          == other->name          || [name          isEqualToString:other->name])           &&
 			(qualifiedName == other->qualifiedName || [qualifiedName isEqualToString:other->qualifiedName])  &&
@@ -90,8 +114,10 @@
 #pragma mark XML parser methods
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)aNamespaceURI
- qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
-	if (currentText != nil) {
+ qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+{
+	if (currentText != nil)
+    {
 		[self closeTextNode];
 	}
 	FPExtensionElementNode *child = [[FPExtensionElementNode alloc] initWithElementName:elementName namespaceURI:aNamespaceURI
@@ -100,62 +126,80 @@
 	[children addObject:child];
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-	if (currentText != nil) {
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
+{
+	if (currentText != nil)
+    {
 		[self closeTextNode];
 	}
+    
 	[parser setDelegate:parentParser];
 	[parentParser resumeParsing:parser fromChild:self];
 	parentParser = nil;
 }
 
-- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
+- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
+{
 	if (currentText == nil) currentText = [[NSMutableString alloc] init];
 	[currentText appendString:string];
 }
 
-- (void)parser:(NSXMLParser *)parser foundIgnorableWhitespace:(NSString *)whitespaceString {
+- (void)parser:(NSXMLParser *)parser foundIgnorableWhitespace:(NSString *)whitespaceString
+{
 	if (currentText == nil) currentText = [[NSMutableString alloc] init];
 	[currentText appendString:whitespaceString];
 }
 
-- (void)parser:(NSXMLParser *)parser foundCDATA:(NSData *)CDATABlock {
+- (void)parser:(NSXMLParser *)parser foundCDATA:(NSData *)CDATABlock
+{
 	NSString *data = [[NSString alloc] initWithData:CDATABlock encoding:NSUTF8StringEncoding];
-	if (data == nil) {
+	if (data == nil)
+    {
 		[self abortParsing:parser withString:[NSString stringWithFormat:@"Non-UTF8 data found in CDATA block at line %d", [parser lineNumber]]];
-	} else {
-		if (currentText == nil) currentText = [[NSMutableString alloc] init];
+	}
+    else
+    {
+		if (currentText == nil)
+        {
+            currentText = [[NSMutableString alloc] init];
+        }
 		[currentText appendString:data];
 	}
 }
 
-- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError {
+- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError
+{
 	[self abortParsing:parser withString:nil];
 }
 
 #pragma mark FPXMLParserProtocol methods
 
-- (void)acceptParsing:(NSXMLParser *)parser {
+- (void)acceptParsing:(NSXMLParser *)parser
+{
 	parentParser = (id<FPXMLParserProtocol>)[parser delegate];
 	[parser setDelegate:self];
 }
 
-- (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description {
+- (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description
+{
 	id<FPXMLParserProtocol> parent = parentParser;
 	parentParser = nil;
 	currentText = nil;
 	[parent abortParsing:parser withString:description];
 }
 
-- (void)resumeParsing:(NSXMLParser *)parser fromChild:(id<FPXMLParserProtocol>)child {
+- (void)resumeParsing:(NSXMLParser *)parser fromChild:(id<FPXMLParserProtocol>)child
+{
 	// stub
 }
 
 #pragma mark -
 #pragma mark Coding Support
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-	if ((self = [super initWithCoder:aDecoder])) {
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	if ((self = [super initWithCoder:aDecoder]))
+    {
 		name = [[aDecoder decodeObjectForKey:@"name"] copy];
 		qualifiedName = [[aDecoder decodeObjectForKey:@"qualifiedName"] copy];
 		namespaceURI = [[aDecoder decodeObjectForKey:@"namespaceURI"] copy];
@@ -165,7 +209,8 @@
 	return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder {
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
 	[super encodeWithCoder:aCoder];
 	[aCoder encodeObject:name forKey:@"name"];
 	[aCoder encodeObject:qualifiedName forKey:@"qualifiedName"];
