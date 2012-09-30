@@ -34,11 +34,13 @@
 // RSS <link> or Atom <link rel="alternate">
 // If multiple qualifying links exist, returns the first
 @property (nonatomic, retain, readonly) FPLink *link;
+
 // An array of FPLink objects corresponding to Atom <link> elements
 // RSS <link> elements are treated as Atom <link rel="alternate"> elements
 @property (nonatomic, copy, readonly) NSArray *links;
 @property (nonatomic, copy, readonly) NSString *guid;
 @property (nonatomic, copy, readonly) NSString *itemDescription;
+
 // The content property is, in most feeds, the same thing as the description property.
 // However, if a feed contains a <content:encoded> tag, the content property will
 // contain that data instead. The description tag will always contain the <description> tag.

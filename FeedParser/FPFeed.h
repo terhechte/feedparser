@@ -35,7 +35,8 @@
 @property (nonatomic, copy, readonly) NSString *title;
 // RSS <link> or Atom <link rel="alternate">
 // If multiple qualifying links exist, the first is returned
-@property (nonatomic, copy, readonly) FPLink *link;
+@property (nonatomic, strong, readonly) FPLink *link;
+
 // An array of FPLink objects corresponding to Atom <link> elements
 // RSS <link> elements are represented as links of rel="alternate"
 @property (nonatomic, copy, readonly) NSArray *links;

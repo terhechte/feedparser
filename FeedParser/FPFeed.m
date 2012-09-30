@@ -29,45 +29,32 @@
 #import "FPParser.h"
 #import "NSDate_FeedParserExtensions.h"
 #import "FPExtensionElementNode.h"
+#import "FPXMLParser+Private.h"
 
 @interface FPFeed ()
-//{
-//	NSMutableArray *links;
-//	NSMutableArray *items;
-//}
 
-@property (nonatomic, copy, readwrite) NSString *title;
-@property (nonatomic, copy, readwrite) NSString *feedDescription;
-@property (nonatomic, copy, readwrite) NSDate *pubDate;
+@property (nonatomic, copy, readwrite) NSString     *title;
+@property (nonatomic, strong, readwrite) FPLink       *link;
+@property (nonatomic, copy, readwrite) NSString     *feedDescription;
+@property (nonatomic, copy, readwrite) NSDate       *pubDate;
 
-@property (nonatomic, copy, readwrite) NSString *itunesAuthor;
-@property (nonatomic, copy, readwrite) NSString *itunesImageURLString;
-@property (nonatomic, copy, readwrite) NSString *itunesKeywords;
-@property (nonatomic, copy, readwrite) NSArray *itunesCategories;
-@property (nonatomic, copy, readwrite) NSNumber *itunesIsExplicit;
-@property (nonatomic, copy, readwrite) NSString *itunesOwnerName;
-@property (nonatomic, copy, readwrite) NSString *itunesOwnerEmail;
+@property (nonatomic, copy, readwrite) NSString     *itunesAuthor;
+@property (nonatomic, copy, readwrite) NSString     *itunesImageURLString;
+@property (nonatomic, copy, readwrite) NSString     *itunesKeywords;
+@property (nonatomic, copy, readwrite) NSArray      *itunesCategories;
+@property (nonatomic, copy, readwrite) NSNumber     *itunesIsExplicit;
+@property (nonatomic, copy, readwrite) NSString     *itunesOwnerName;
+@property (nonatomic, copy, readwrite) NSString     *itunesOwnerEmail;
 
 @property (nonatomic, strong, readwrite) NSMutableArray *feedLinks;
 @property (nonatomic, strong, readwrite) NSMutableArray *feedItems;
 
-//- (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-//- (void)rss_item:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-//- (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-//- (void)atom_link:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
-
 @end
+
 
 @implementation FPFeed
 
-//@synthesize title, link, links, feedDescription, pubDate, items;
-//@synthesize itunesAuthor;
-//@synthesize itunesImageURLString;
-//@synthesize itunesKeywords;
-//@synthesize itunesCategories;
-//@synthesize itunesIsExplicit;
-//@synthesize itunesOwnerName;
-//@synthesize itunesOwnerEmail;
+@synthesize link = _link;
 
 + (void)initialize
 {
@@ -101,7 +88,7 @@
 	}
 }
 
-- (id)initWithBaseNamespaceURI:(NSString *)namespaceURI
+- (id) initWithBaseNamespaceURI:(NSString *)namespaceURI
 {
 	if ((self = [super initWithBaseNamespaceURI:namespaceURI]))
     {
@@ -116,6 +103,16 @@
 	return [[FPItem alloc] initWithBaseNamespaceURI: namespaceURI];
 }
 
+- (NSArray *)links;
+{
+    return [NSArray arrayWithArray:self.feedLinks];
+}
+
+- (NSArray *)items;
+{
+    return [NSArray arrayWithArray:self.feedItems];
+}
+
 - (void)rss_pubDate:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser
 {
 	NSDate *date = [NSDate dateWithRFC822:textValue];
@@ -128,19 +125,19 @@
 
 - (void)rss_item:(NSDictionary *)attributes parser:(NSXMLParser *)parser
 {
-	FPItem *item = [self newItemWithBaseNamespaceURI:baseNamespaceURI];
+	FPItem *item = [self newItemWithBaseNamespaceURI:self.baseNamespaceURI];
 	[item acceptParsing:parser];
-	[_feedItems addObject:item];
+	[self.feedItems addObject:item];
 }
 
 - (void)rss_link:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser
 {
 	FPLink *aLink = [[FPLink alloc] initWithHref:textValue rel:@"alternate" type:nil title:nil];
-	if (_link == nil)
+	if (self.link == nil)
     {
-		_link = aLink;
+		self.link = aLink;
 	}
-	[_feedLinks addObject:aLink];
+	[self.feedLinks addObject:aLink];
 }
 
 - (void) itunes_owner:(FPExtensionElementNode *)node parser:(NSXMLParser *)parser;
@@ -172,11 +169,11 @@
                                             type:attributes[@"type"]
 										   title:attributes[@"title"]];
 
-	if (link == nil && [aLink.rel isEqualToString:@"alternate"])
+	if (self.link == nil && [aLink.rel isEqualToString:@"alternate"])
     {
-		_link = aLink;
+		self.link = aLink;
 	}
-	[_feedLinks addObject:aLink];
+	[self.feedLinks addObject:aLink];
 }
 
 - (void) itunes_image:(NSString *)textValue attributes:(NSDictionary *)attributes parser:(NSXMLParser *)parser;
@@ -214,12 +211,15 @@
 	if (![anObject isKindOfClass:[FPFeed class]]) return NO;
 
 	FPFeed *other = (FPFeed *)anObject;
-	return ((_title           == other->_title            || [_title           isEqualToString:other->_title])           &&
-			(_link            == other->_link            || [_link            isEqual:other->_link])                    &&
-			(_feedLinks       == other->_feedLinks       || [_feedLinks           isEqualToArray:other->_feedLinks])            &&
-			(_feedDescription == other->_feedDescription || [_feedDescription isEqualToString:other->_feedDescription]) &&
-			(_pubDate         == other->_pubDate         || [_pubDate         isEqual:other->_pubDate])                 &&
-			(_items           == other->_items           || [_items           isEqualToArray:other->_items]));
+    BOOL isEqual = YES;
+    isEqual &= (self.title           == other.title           || [self.title           isEqualToString:other.title]);
+    isEqual &= (self.link            == other.link            || [self.link            isEqual:other.link]);
+    isEqual &= (self.feedLinks       == other.feedLinks       || [self.feedLinks       isEqualToArray:other.feedLinks]);
+    isEqual &= (self.feedDescription == other.feedDescription || [self.feedDescription isEqualToString:other.feedDescription]);
+    isEqual &= (self.pubDate         == other.pubDate         || [self.pubDate         isEqual:other.pubDate]);
+    isEqual &= (self.feedItems       == other.feedItems       || [self.feedItems       isEqualToArray:other.feedItems]);
+
+    return isEqual;
 }
 
 #pragma mark -
@@ -229,12 +229,12 @@
 {
 	if ((self = [super initWithCoder:aDecoder]))
     {
-		_title = [[aDecoder decodeObjectForKey:@"title"] copy];
-		_link = [aDecoder decodeObjectForKey:@"link"];
-		_feedLinks = [[aDecoder decodeObjectForKey:@"links"] mutableCopy];
-		_feedDescription = [[aDecoder decodeObjectForKey:@"feedDescription"] copy];
-		_pubDate = [[aDecoder decodeObjectForKey:@"pubDate"] copy];
-		_items = [[aDecoder decodeObjectForKey:@"items"] mutableCopy];
+		self.title = [aDecoder decodeObjectForKey:@"title"];
+		self.link = [aDecoder decodeObjectForKey:@"link"];
+		self.feedDescription = [aDecoder decodeObjectForKey:@"description"];
+		self.pubDate = [aDecoder decodeObjectForKey:@"pubDate"];
+		self.feedLinks = [[aDecoder decodeObjectForKey:@"links"] mutableCopy];
+		self.feedItems = [[aDecoder decodeObjectForKey:@"items"] mutableCopy];
 	}
 	return self;
 }
@@ -242,12 +242,12 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
 	[super encodeWithCoder:aCoder];
-	[aCoder encodeObject:_title forKey:@"title"];
-	[aCoder encodeObject:_link forKey:@"link"];
-	[aCoder encodeObject:_feedLinks forKey:@"links"];
-	[aCoder encodeObject:_feedDescription forKey:@"feedDescription"];
-	[aCoder encodeObject:_pubDate forKey:@"pubDate"];
-	[aCoder encodeObject:_items forKey:@"items"];
+	[aCoder encodeObject:self.title forKey:@"title"];
+	[aCoder encodeObject:self.link forKey:@"link"];
+	[aCoder encodeObject:self.feedLinks forKey:@"links"];
+	[aCoder encodeObject:self.feedDescription forKey:@"description"];
+	[aCoder encodeObject:self.pubDate forKey:@"pubDate"];
+	[aCoder encodeObject:self.feedItems forKey:@"items"];
 }
 
 @end

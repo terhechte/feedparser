@@ -33,9 +33,10 @@
 	return [[self alloc] initWithHref:href rel:rel type:type title:title];
 }
 
-- (id)initWithHref:(NSString *)inHref rel:(NSString *)inRel type:(NSString *)inType title:(NSString *)inTitle
+- (id) initWithHref:(NSString *)inHref rel:(NSString *)inRel type:(NSString *)inType title:(NSString *)inTitle
 {
-	if ((self = [super init])) {
+	if ((self = [super init]))
+    {
 		_href = [inHref copy];
 		_rel = (inRel ? [inRel copy] : @"alternate");
 		_type = [inType copy];
@@ -59,7 +60,7 @@
 {
 	NSMutableArray *attributes = [NSMutableArray array];
 
-	for (NSString *key in [NSArray arrayWithObjects:@"rel", @"type", @"title", nil])
+	for (NSString *key in @[@"rel", @"type", @"title"])
     {
 		NSString *value = [self valueForKey:key];
 		if (value != nil)

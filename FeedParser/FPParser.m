@@ -24,6 +24,7 @@
 //  SOFTWARE.
 
 #import "FPParser.h"
+#import "FPXMLParser+Private.h"
 #import "FPFeed.h"
 #import "FPErrors.h"
 
@@ -77,7 +78,7 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 		return nil;
 	}
 
-	parseDepth = 1;
+	self.parseDepth = 1;
 	[xmlParser setDelegate:self];
 	[xmlParser setShouldProcessNamespaces:YES];
     
@@ -193,7 +194,7 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 	}
     else
     {
-		_feed = [self newFeedWithBaseNamespaceURI: baseNamespaceURI];
+		_feed = [self newFeedWithBaseNamespaceURI:self.baseNamespaceURI];
 		[_feed acceptParsing:parser];
 		_lookingForChannel = NO;
 	}
@@ -207,7 +208,7 @@ NSString * const FPParserErrorDomain = @"FPParserErrorDomain";
 	}
     else
     {
-		_feed = [self newFeedWithBaseNamespaceURI: baseNamespaceURI];
+		_feed = [self newFeedWithBaseNamespaceURI:self.baseNamespaceURI];
 		[_feed acceptParsing:parser];
 	}
 }

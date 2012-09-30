@@ -29,7 +29,8 @@
 @implementation FeedParserTest
 // to produce an epoch from a date, use `date -j -f '%a, %d %b %Y %H:%M:%S %Z' 'Tue, 10 Jun 2003 04:00:00 GMT' +'%s'`
 
-- (FPFeed *)feedFromFixture:(NSString *)fixture {
+- (FPFeed *)feedFromFixture:(NSString *)fixture
+{
 	NSData *data = [NSData dataWithContentsOfFile:[[NSBundle bundleForClass:[FeedParserTest class]] pathForResource:fixture ofType:nil]];
 	NSError *error = nil;
 	FPFeed *feed = [FPParser parsedFeedWithData:data error:&error];
@@ -48,7 +49,7 @@
 	FPItem *item = [feed.items objectAtIndex:2];
 	STAssertEqualObjects(item.title, @"The Engine That Does More", nil);
 	STAssertEqualObjects(item.link.href, @"http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp", nil);
-	STAssertEqualObjects(item.description, @"Before man travels to Mars, NASA hopes to design new engines that will let \
+	STAssertEqualObjects(item.itemDescription, @"Before man travels to Mars, NASA hopes to design new engines that will let \
 us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.", nil);
 	STAssertEqualObjects(item.pubDate, [NSDate dateWithTimeIntervalSince1970:1054024652], nil);
 	STAssertEqualObjects(item.guid, @"http://liftoff.msfc.nasa.gov/2003/05/27.html#item571", nil);
@@ -61,7 +62,7 @@ us fly through the Solar System more quickly.  The proposed VASIMR engine would 
 	STAssertEqualObjects(feed.title, @"Dave Winer: Grateful Dead", nil);
 	STAssertEquals([feed.items count], 22u, nil);
 	FPItem *item = [feed.items objectAtIndex:18];
-	STAssertEqualObjects(item.description, @"Truckin, like the doo-dah man, once told me gotta play your hand. Sometimes the cards ain't worth a dime, if you don't lay em down.", nil);
+	STAssertEqualObjects(item.itemDescription, @"Truckin, like the doo-dah man, once told me gotta play your hand. Sometimes the cards ain't worth a dime, if you don't lay em down.", nil);
 }
 
 - (void)testSampleRSSOhNineOne {
@@ -115,7 +116,7 @@ us fly through the Solar System more quickly.  The proposed VASIMR engine would 
 						 @"They take a crash course in culture, language and protocol at Russia's " \
 						 @"<a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.</p>", nil);
 	STAssertEqualObjects(item.content, encoded.stringValue, nil);
-	STAssertEqualObjects(item.description,
+	STAssertEqualObjects(item.itemDescription,
 						 @"How do Americans get ready to work with Russians aboard the International Space Station? " \
 						 @"They take a crash course in culture, language and protocol at Russia's " \
 						 @"<a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.", nil);
@@ -134,8 +135,8 @@ us fly through the Solar System more quickly.  The proposed VASIMR engine would 
 	FPFeed *feed = [self feedFromFixture:@"extensions.rss"];
 	NSAssert(feed != nil, @"extensions.rss feed was nil");
 	FPItem *item = [feed.items objectAtIndex:0];
-	STAssertFalse(item.description == item.content, nil);
-	STAssertEqualObjects(item.description,
+	STAssertFalse(item.itemDescription == item.content, nil);
+	STAssertEqualObjects(item.itemDescription,
 						 @"How do Americans get ready to work with Russians aboard the International Space Station? " \
 						 @"They take a crash course in culture, language and protocol at Russia's " \
 						 @"<a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.", nil);
@@ -145,7 +146,7 @@ us fly through the Solar System more quickly.  The proposed VASIMR engine would 
 						 @"<a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.</p>", nil);
 	STAssertNil(item.creator, nil);
 	item = [feed.items objectAtIndex:2];
-	STAssertTrue(item.description == item.content, nil);
+	STAssertTrue(item.itemDescription == item.content, nil);
 	STAssertEqualObjects(item.creator, @"Joe Smith", nil);
 	STAssertNil(item.author, nil);
 }
@@ -161,24 +162,22 @@ us fly through the Solar System more quickly.  The proposed VASIMR engine would 
 	STAssertEquals([feed.items count], 4u, nil);
 	// item 0
 	FPItem *item = [feed.items objectAtIndex:0];
-	STAssertEqualObjects(item.link, [FPLink linkWithHref:@"http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp" rel:@"alternate"
-													type:nil title:nil], nil);
-	STAssertEqualObjects(item.links, [NSArray arrayWithObject:item.link], nil);
+	STAssertEqualObjects(item.link, [FPLink linkWithHref:@"http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp" rel:@"alternate" type:nil title:nil], nil);
+	STAssertEqualObjects(item.links, @[item.link], nil);
 	// item 1
 	item = [feed.items objectAtIndex:1];
 	STAssertEqualObjects(item.link, [FPLink linkWithHref:@"http://fake/" rel:@"alternate" type:nil title:nil], nil);
-	STAssertEqualObjects(item.links, [NSArray arrayWithObject:item.link], nil);
+	STAssertEqualObjects(item.links, @[item.link], nil);
 	// item 2
 	item = [feed.items objectAtIndex:2];
 	STAssertEqualObjects(item.link, [FPLink linkWithHref:@"http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp" rel:@"alternate"
 													type:nil title:nil], nil);
-	NSArray *links = [NSArray arrayWithObjects:item.link, [FPLink linkWithHref:@"http://fake/" rel:@"alternate" type:nil title:nil], nil];
+	NSArray *links = @[item.link, [FPLink linkWithHref:@"http://fake/" rel:@"alternate" type:nil title:nil]];
 	STAssertEqualObjects(item.links, links, nil);
 	// item 3
 	item = [feed.items objectAtIndex:3];
-	STAssertEqualObjects(item.link, [FPLink linkWithHref:@"http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp" rel:@"alternate"
-													type:nil title:nil], nil);
-	links = [NSArray arrayWithObjects:[FPLink linkWithHref:@"http://fake/" rel:@"random" type:@"text/plain" title:@"A fake link"], item.link, nil];
+	STAssertEqualObjects(item.link, [FPLink linkWithHref:@"http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp" rel:@"alternate" type:nil title:nil], nil);
+	links = @[[FPLink linkWithHref:@"http://fake/" rel:@"random" type:@"text/plain" title:@"A fake link"], item.link];
 	STAssertEqualObjects(item.links, links, nil);
 }
 
@@ -203,16 +202,18 @@ us fly through the Solar System more quickly.  The proposed VASIMR engine would 
 
 - (void)testArchiving {
 	// test all fixtures to ensure the unarchived object is equal to the archived one
-	NSArray *fixtures = [NSArray arrayWithObjects:@"sample-rss-091.rss", @"sample-rss-092.rss",
-						 @"sample-rss-2.rss", @"extensions.rss", @"rss-with-atom.rss", @"google-news.rss", nil];
-	for (NSString *fixture in fixtures) {
+	NSArray *fixtures = @[@"sample-rss-091.rss", @"sample-rss-092.rss", @"sample-rss-2.rss", @"extensions.rss", @"rss-with-atom.rss", @"google-news.rss"];
+
+	for (NSString *fixture in fixtures)
+    {
 		FPFeed *feed = [self feedFromFixture:fixture];
 		if (feed == nil) continue;
+        
 		NSData *data = [NSKeyedArchiver archivedDataWithRootObject:feed];
 		STAssertNotNil(data, nil);
 		FPFeed *newFeed = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 		STAssertNotNil(newFeed, nil);
-		STAssertEqualObjects(feed, newFeed, nil);
+		STAssertEqualObjects(feed, newFeed, [NSString stringWithFormat:@"Archiving failed for feed: %@", fixture]);
 	}
 }
 @end

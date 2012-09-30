@@ -29,14 +29,16 @@ static NSArray *kDays;
 static NSArray *kMonths;
 
 @implementation NSObject (NSDate_FeedParserExtensions)
-+ (void)load {
-	kDays = [[NSArray alloc] initWithObjects:@"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat", @"Sun", nil];
-	kMonths = [[NSArray alloc] initWithObjects:@"Jan", @"Feb", @"Mar", @"Apr", @"May", @"Jun", @"Jul", @"Aug", @"Sep", @"Oct", @"Nov", @"Dec", nil];
+
++ (void)load
+{
+	kDays = @[@"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat", @"Sun"];
+	kMonths = @[@"Jan", @"Feb", @"Mar", @"Apr", @"May", @"Jun", @"Jul", @"Aug", @"Sep", @"Oct", @"Nov", @"Dec"];
 }
 
 #define ASSERT(cond) do { if (!(cond)) { return nil; } } while (0)
-+ (NSDate *)dateWithRFC822:(NSString *)rfc822 {
-
++ (NSDate *)dateWithRFC822:(NSString *)rfc822
+{
 	NSDateComponents *components = [[NSDateComponents alloc] init];
 	NSScanner *scanner = [NSScanner scannerWithString:rfc822];
 	NSCharacterSet *letterSet;
@@ -58,9 +60,11 @@ static NSArray *kMonths;
 	ASSERT(month != NSNotFound);
 	[components setMonth:(month+1)];
 	ASSERT([scanner scanCharactersFromSet:digitSet intoString:&temp] && ([temp length] == 2 || [temp length] == 4));
+    
 	// Treat 2-digit years as (1969-2000) or (2001-2068)
 	NSInteger year = [temp integerValue];
-	if ([temp length] == 2) {
+	if ([temp length] == 2)
+    {
 		year += (year >= 69 ? 1900 : 2000);
 	}
 	[components setYear:year];
