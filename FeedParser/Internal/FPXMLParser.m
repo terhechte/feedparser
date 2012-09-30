@@ -114,7 +114,7 @@ void (*handleExtensionElement)(id, SEL, FPExtensionNode *node, NSXMLParser*) = (
 	if ((self = [super init]))
     {
 		_extensionElementNodes = [[NSMutableArray alloc] init];
-		handlers = [kHandlerMap objectForKey:[self class]];
+		_handlers = [kHandlerMap objectForKey:[self class]];
 		currentElementType = FPXMLParserStreamElementType;
 		_parseDepth = 1;
 	}
@@ -249,7 +249,7 @@ void (*handleExtensionElement)(id, SEL, FPExtensionNode *node, NSXMLParser*) = (
 		case FPXMLParserStreamElementType:
         {
 			FPXMLPair *keyPair = [FPXMLPair pairWithFirst:elementName second:namespaceURI];
-			FPXMLPair *handler = [handlers objectForKey:keyPair];
+			FPXMLPair *handler = [self.handlers objectForKey:keyPair];
 
             if (handler != nil)
             {
@@ -298,8 +298,6 @@ void (*handleExtensionElement)(id, SEL, FPExtensionNode *node, NSXMLParser*) = (
 						[self.extensionElementNodes addObject:node];
 //					default:
 						break;
-
-//						break;
 				}
 			}
             else if ([namespaceURI isEqualToString:_baseNamespaceURI])

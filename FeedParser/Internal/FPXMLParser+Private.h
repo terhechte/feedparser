@@ -13,7 +13,7 @@
     //	NSMutableArray *extensionElements;
 	id<FPXMLParserProtocol> parentParser; // non-retained
 
-	NSDictionary *handlers;
+    //	NSDictionary *handlers;
 	NSMutableString *currentTextValue;
 	NSDictionary *currentAttributeDict;
 	FPXMLParserElementType currentElementType;
@@ -25,5 +25,6 @@
 @property (nonatomic, assign, readwrite) NSUInteger parseDepth;
 @property (nonatomic, copy, readwrite) NSString *baseNamespaceURI;
 @property (nonatomic, strong, readwrite) NSMutableArray *extensionElementNodes;
+@property (nonatomic, strong, readwrite) NSDictionary *handlers;
 
 @end
