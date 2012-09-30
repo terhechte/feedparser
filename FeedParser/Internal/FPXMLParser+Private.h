@@ -24,7 +24,7 @@
 
 @property (nonatomic, assign, readwrite) NSUInteger parseDepth;
 @property (nonatomic, copy, readwrite) NSString *baseNamespaceURI;
-@property (nonatomic, strong, readwrite) NSMutableArray *extensionElementNodes;
-@property (nonatomic, strong, readwrite) NSDictionary *handlers;
+@property (nonatomic, copy, readwrite) NSMutableArray *extensionElementNodes;
+@property (nonatomic, copy, readwrite) NSDictionary *handlers;
 
 @end

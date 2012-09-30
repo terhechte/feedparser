@@ -45,7 +45,7 @@ extern NSString * const kFPXMLParserItunesPodcastNamespaceURI;
 
 @interface FPXMLParser : NSObject <FPXMLParserProtocol, NSCoding>
 
-@property (nonatomic, readonly) NSArray *extensionElements;
+@property (nonatomic, copy, readonly) NSArray *extensionElements;
 
 + (void)registerRSSHandler:(SEL)selector forElement:(NSString *)elementName type:(FPXMLParserElementType)type;
 + (void)registerAtomHandler:(SEL)selector forElement:(NSString *)elementName type:(FPXMLParserElementType)type;

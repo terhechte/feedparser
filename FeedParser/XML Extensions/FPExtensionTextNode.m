@@ -27,20 +27,20 @@
 #import "NSString_extensions.h"
 
 @interface FPExtensionTextNode ()
-{
-	NSString *stringValue;
-}
 
+@property (nonatomic, copy, readwrite) NSString *stringValue;
 @end
 
 
 @implementation FPExtensionTextNode
 
+@synthesize stringValue;
+
 - (id)initWithStringValue:(NSString *)value
 {
 	if ((self = [super init]))
     {
-		stringValue = [value copy];
+		self.stringValue = value;
 	}
 	return self;
 }
@@ -50,14 +50,9 @@
 	return YES;
 }
 
-- (NSString *)stringValue
-{
-	return stringValue;
-}
-
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@: %p \"%@\"", NSStringFromClass([self class]), self, [stringValue fpEscapedString]];
+	return [NSString stringWithFormat:@"<%@: %p \"%@\"", NSStringFromClass([self class]), self, [self.stringValue fpEscapedString]];
 }
 
 - (BOOL)isEqual:(id)anObject
@@ -65,7 +60,7 @@
 	if (![anObject isKindOfClass:[FPExtensionTextNode class]]) return NO;
     
 	FPExtensionTextNode *other = (FPExtensionTextNode *)anObject;
-	return (stringValue == other->stringValue || [stringValue isEqualToString:other->stringValue]);
+	return (self.stringValue == other.stringValue || [self.stringValue isEqualToString:other.stringValue]);
 }
 
 #pragma mark -
@@ -75,7 +70,7 @@
 {
 	if ((self = [super initWithCoder:aDecoder]))
     {
-		stringValue = [[aDecoder decodeObjectForKey:@"stringValue"] copy];
+		self.stringValue = [aDecoder decodeObjectForKey:@"stringValue"];
 	}
 	return self;
 }
@@ -83,7 +78,7 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
 	[super encodeWithCoder:aCoder];
-	[aCoder encodeObject:stringValue forKey:@"stringValue"];
+	[aCoder encodeObject:self.stringValue forKey:@"stringValue"];
 }
 
 @end

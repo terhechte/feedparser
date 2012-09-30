@@ -34,10 +34,12 @@
 @interface FPFeed ()
 
 @property (nonatomic, copy, readwrite) NSString     *title;
-@property (nonatomic, strong, readwrite) FPLink       *link;
+@property (nonatomic, strong, readwrite) FPLink     *link;
 @property (nonatomic, copy, readwrite) NSString     *feedDescription;
 @property (nonatomic, copy, readwrite) NSDate       *pubDate;
 
+@property (nonatomic, copy, readwrite) NSString     *itunesSubtitle;
+@property (nonatomic, copy, readwrite) NSString     *itunesSummary;
 @property (nonatomic, copy, readwrite) NSString     *itunesAuthor;
 @property (nonatomic, copy, readwrite) NSString     *itunesImageURLString;
 @property (nonatomic, copy, readwrite) NSString     *itunesKeywords;
@@ -64,7 +66,9 @@
 		[self registerRSSHandler:@selector(rss_link:attributes:parser:) forElement:@"link" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(setFeedDescription:) forElement:@"description" type:FPXMLParserTextElementType];
 		[self registerRSSHandler:@selector(rss_pubDate:attributes:parser:) forElement:@"pubDate" type:FPXMLParserTextElementType];
-        
+
+        [self registerTextHandler:@selector(setItunesSubtitle:) forElement:@"subtitle" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
+        [self registerTextHandler:@selector(setItunesSummary:) forElement:@"summary" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(setItunesAuthor:) forElement:@"author" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(itunes_image:attributes:parser:) forElement:@"image" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         [self registerTextHandler:@selector(setItunesKeywords:) forElement:@"keywords" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
@@ -76,9 +80,8 @@
 
         [self registerTextHandler:@selector(setItunesOwnerEmail:) forElement:@"email" namespaceURI:kFPXMLParserItunesPodcastNamespaceURI];
         
-		for (NSString *key in [NSArray arrayWithObjects:
-							   @"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate", @"category",
-							   @"generator", @"docs", @"cloud", @"ttl", @"image", @"rating", @"textInput", @"skipHours", @"skipDays", nil]) {
+		for (NSString *key in @[@"language", @"copyright", @"managingEditor", @"webMaster", @"lastBuildDate", @"category", @"generator", @"docs", @"cloud", @"ttl", @"image", @"rating", @"textInput", @"skipHours", @"skipDays"])
+        {
 			[self registerRSSHandler:NULL forElement:key type:FPXMLParserSkipElementType];
 		}
 		[self registerRSSHandler:@selector(rss_item:parser:) forElement:@"item" type:FPXMLParserStreamElementType];

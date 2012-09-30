@@ -29,28 +29,31 @@
 #import "FPExtensionTextNode.h"
 
 @interface FPExtensionElementNode ()
-{
-	// parsing ivars
-	id<FPXMLParserProtocol> parentParser;
-	NSMutableString *currentText;
-}
+//{
+//	// parsing ivars
+//	id<FPXMLParserProtocol> parentParser;
+//	NSMutableString *currentText;
+//}
 
 @property (nonatomic, copy, readwrite) NSString *name;
 @property (nonatomic, copy, readwrite) NSString *qualifiedName;
 @property (nonatomic, copy, readwrite) NSString *namespaceURI;
 @property (nonatomic, copy, readwrite) NSDictionary *attributes;
-@property (nonatomic, strong, readwrite) NSMutableArray *children;
+@property (nonatomic, strong, readwrite) NSMutableArray *childNodes;
+
+@property id<FPXMLParserProtocol> parentParser;
+@property NSMutableString *currentText;
 
 @end
 
 
 @implementation FPExtensionElementNode
 
-@synthesize name = _name;
-@synthesize namespaceURI = _namespaceURI;
-@synthesize qualifiedName = _qualifiedName;
-@synthesize attributes = _attributes;
-@synthesize children = _children;
+@synthesize name;
+@synthesize qualifiedName;
+@synthesize namespaceURI;
+@synthesize attributes;
+@synthesize childNodes;
 
 - (id)initWithElementName:(NSString *)aName namespaceURI:(NSString *)aNamespaceURI qualifiedName:(NSString *)qName
 			   attributes:(NSDictionary *)attributeDict
@@ -61,7 +64,7 @@
         self.qualifiedName = qName;
         self.namespaceURI = aNamespaceURI;
         self.attributes = attributeDict;
-        self.children = [[NSMutableArray alloc] init];
+        self.childNodes = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
@@ -74,6 +77,11 @@
 - (NSString *)description
 {
 	return [NSString stringWithFormat:@"<%@: %p <%@, %@>>", NSStringFromClass([self class]), self, self.qualifiedName, self.namespaceURI];
+}
+
+- (NSArray *)children;
+{
+    return [NSArray arrayWithArray:self.childNodes];
 }
 
 - (NSString *)stringValue
@@ -100,9 +108,9 @@
 
 - (void)closeTextNode
 {
-	FPExtensionTextNode *child = [[FPExtensionTextNode alloc] initWithStringValue:currentText];
-	[self.children addObject:child];
-	currentText = nil;
+	FPExtensionTextNode *child = [[FPExtensionTextNode alloc] initWithStringValue:self.currentText];
+	[self.childNodes addObject:child];
+	self.currentText = nil;
 }
 
 - (BOOL)isEqual:(id)anObject
@@ -122,44 +130,44 @@
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)aNamespaceURI
  qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-	if (currentText != nil)
+	if (_currentText != nil)
     {
 		[self closeTextNode];
 	}
 	FPExtensionElementNode *child = [[FPExtensionElementNode alloc] initWithElementName:elementName namespaceURI:aNamespaceURI
 																		  qualifiedName:qName attributes:attributeDict];
 	[child acceptParsing:parser];
-	[self.children addObject:child];
+	[self.childNodes addObject:child];
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
-	if (currentText != nil)
+	if (self.currentText != nil)
     {
 		[self closeTextNode];
 	}
     
-	[parser setDelegate:parentParser];
-	[parentParser resumeParsing:parser fromChild:self];
-	parentParser = nil;
+	[parser setDelegate:self.parentParser];
+	[self.parentParser resumeParsing:parser fromChild:self];
+	self.parentParser = nil;
 }
 
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
 {
-	if (currentText == nil)
+	if (self.currentText == nil)
     {
-        currentText = [[NSMutableString alloc] init];
+        self.currentText = [[NSMutableString alloc] init];
     }
-	[currentText appendString:string];
+	[self.currentText appendString:string];
 }
 
 - (void)parser:(NSXMLParser *)parser foundIgnorableWhitespace:(NSString *)whitespaceString
 {
-	if (currentText == nil)
+	if (self.currentText == nil)
     {
-        currentText = [[NSMutableString alloc] init];
+        self.currentText = [[NSMutableString alloc] init];
     }
-	[currentText appendString:whitespaceString];
+	[self.currentText appendString:whitespaceString];
 }
 
 - (void)parser:(NSXMLParser *)parser foundCDATA:(NSData *)CDATABlock
@@ -171,11 +179,11 @@
 	}
     else
     {
-		if (currentText == nil)
+		if (self.currentText == nil)
         {
-            currentText = [[NSMutableString alloc] init];
+            self.currentText = [[NSMutableString alloc] init];
         }
-		[currentText appendString:data];
+		[self.currentText appendString:data];
 	}
 }
 
@@ -188,15 +196,15 @@
 
 - (void)acceptParsing:(NSXMLParser *)parser
 {
-	parentParser = (id<FPXMLParserProtocol>)[parser delegate];
+	self.parentParser = (id<FPXMLParserProtocol>)[parser delegate];
 	[parser setDelegate:self];
 }
 
 - (void)abortParsing:(NSXMLParser *)parser withString:(NSString *)description
 {
-	id<FPXMLParserProtocol> parent = parentParser;
-	parentParser = nil;
-	currentText = nil;
+	id<FPXMLParserProtocol> parent = self.parentParser;
+	self.parentParser = nil;
+	self.currentText = nil;
 	[parent abortParsing:parser withString:description];
 }
 
@@ -216,7 +224,7 @@
 		self.qualifiedName = [aDecoder decodeObjectForKey:@"qualifiedName"];
 		self.namespaceURI = [aDecoder decodeObjectForKey:@"namespaceURI"];
 		self.attributes = [aDecoder decodeObjectForKey:@"attributes"];
-		self.children = [[aDecoder decodeObjectForKey:@"children"] mutableCopy];
+		self.childNodes = [[aDecoder decodeObjectForKey:@"children"] mutableCopy];
 	}
 	return self;
 }

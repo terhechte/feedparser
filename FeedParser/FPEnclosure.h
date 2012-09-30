@@ -28,9 +28,9 @@
 
 @interface FPEnclosure : NSObject <NSCoding>
 
-@property (nonatomic, readonly) NSString *url;
-@property (nonatomic, readonly) NSUInteger length;
-@property (nonatomic, readonly) NSString *type;
+@property (nonatomic, copy, readonly) NSString *url;
+@property (nonatomic, assign, readonly) NSUInteger length;
+@property (nonatomic, copy, readonly) NSString *type;
 
 + (id)enclosureWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type;
 - (id)initWithURL:(NSString *)url length:(NSUInteger)length type:(NSString *)type;

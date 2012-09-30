@@ -61,7 +61,7 @@
 		0A5C39D60F8E9B1200106D24 /* FPExtensionTextNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPExtensionTextNode.h; sourceTree = "<group>"; };
 		0A5C39D70F8E9B1200106D24 /* FPExtensionTextNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPExtensionTextNode.m; sourceTree = "<group>"; };
 		0A5C3A040F8E9ED200106D24 /* FPXMLParserProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPXMLParserProtocol.h; sourceTree = "<group>"; };
-		0A5C3A860F8EAC1D00106D24 /* FPExtensionElementNode_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPExtensionElementNode_Private.h; sourceTree = "<group>"; };
+		0A5C3A860F8EAC1D00106D24 /* FPExtensionElementNode_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPExtensionElementNode_Private.h; path = ../Internal/FPExtensionElementNode_Private.h; sourceTree = "<group>"; };
 		0A5C3AC90F8EAE3800106D24 /* extensions.rss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = extensions.rss; sourceTree = "<group>"; usesTabs = 0; };
 		0A5C3BF30F901AF100106D24 /* rss-with-atom.rss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "rss-with-atom.rss"; sourceTree = "<group>"; };
 		0A5C3C7D0F902A2A00106D24 /* FPLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPLink.h; sourceTree = "<group>"; };
@@ -154,6 +154,7 @@
 				0A5C39D00F8E999A00106D24 /* FPExtensionNode.h */,
 				0A5C39D10F8E999A00106D24 /* FPExtensionNode.m */,
 				0A5C39C50F8E981000106D24 /* FPExtensionElementNode.h */,
+				0A5C3A860F8EAC1D00106D24 /* FPExtensionElementNode_Private.h */,
 				0A5C39C60F8E981000106D24 /* FPExtensionElementNode.m */,
 				0A5C39D60F8E9B1200106D24 /* FPExtensionTextNode.h */,
 				0A5C39D70F8E9B1200106D24 /* FPExtensionTextNode.m */,
@@ -165,7 +166,6 @@
 			isa = PBXGroup;
 			children = (
 				0A5C3A040F8E9ED200106D24 /* FPXMLParserProtocol.h */,
-				0A5C3A860F8EAC1D00106D24 /* FPExtensionElementNode_Private.h */,
 				0A9BB99C0F8ACCF200CB5F5D /* FPXMLParser.h */,
 				C79D97051617C6A400B8B9BB /* FPXMLParser+Private.h */,
 				0A9BB99D0F8ACCF200CB5F5D /* FPXMLParser.m */,
@@ -564,6 +564,7 @@
 				C79D97241617CB2200B8B9BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

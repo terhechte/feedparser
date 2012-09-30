@@ -44,6 +44,8 @@
 @property (nonatomic, copy, readonly) NSDate *pubDate;
 @property (nonatomic, retain, readonly) NSArray *items;
 
+@property (nonatomic, copy, readonly) NSString *itunesSubtitle;
+@property (nonatomic, copy, readonly) NSString *itunesSummary;
 @property (nonatomic, copy, readonly) NSString *itunesAuthor;
 @property (nonatomic, copy, readonly) NSString *itunesImageURLString;
 @property (nonatomic, copy, readonly) NSString *itunesKeywords;

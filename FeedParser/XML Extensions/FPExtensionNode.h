@@ -37,13 +37,13 @@
 // for text nodes, it returns the text associated with the node
 // for element nodes, it returns a concatenation of the stringValue of all its children
 // this means that any child element nodes get effectively flattened out and disappear
-@property (nonatomic, readonly) NSString *stringValue;
+@property (nonatomic, copy, readonly) NSString *stringValue;
 
 // The following properties are only valid for element nodes
-@property (nonatomic, readonly) NSString *name;
-@property (nonatomic, readonly) NSString *qualifiedName; // returns the name as existed in the XML source
-@property (nonatomic, readonly) NSString *namespaceURI;
-@property (nonatomic, readonly) NSDictionary *attributes;
-@property (nonatomic, readonly) NSArray *children; // an array of FPExtensionNodes
+@property (nonatomic, copy, readonly) NSString *name;
+@property (nonatomic, copy, readonly) NSString *qualifiedName; // returns the name as existed in the XML source
+@property (nonatomic, copy, readonly) NSString *namespaceURI;
+@property (nonatomic, copy, readonly) NSDictionary *attributes;
+@property (nonatomic, copy, readonly) NSArray *children; // an array of FPExtensionNodes
 
 @end

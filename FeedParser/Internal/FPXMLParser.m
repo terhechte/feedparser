@@ -31,13 +31,16 @@
 #import <objc/message.h>
 #import <stdarg.h>
 
+
 NSString * const kFPXMLParserAtomNamespaceURI = @"http://www.w3.org/2005/Atom";
 NSString * const kFPXMLParserDublinCoreNamespaceURI = @"http://purl.org/dc/elements/1.1/";
 NSString * const kFPXMLParserContentNamespaceURI = @"http://purl.org/rss/1.0/modules/content/";
 NSString * const kFPXMLParserMediaRSSNamespaceURI = @"http://search.yahoo.com/mrss/";
 NSString * const kFPXMLParserItunesPodcastNamespaceURI = @"http://www.itunes.com/dtds/podcast-1.0.dtd";
 
+
 static NSMutableDictionary *kHandlerMap;
+
 
 void (*handleTextValue)(id, SEL, NSString*, NSDictionary*, NSXMLParser*) = (void(*)(id, SEL, NSString*, NSDictionary*, NSXMLParser*))objc_msgSend;
 void (*handleStreamElement)(id, SEL, NSDictionary*, NSXMLParser*) = (void(*)(id, SEL, NSDictionary*, NSXMLParser*))objc_msgSend;
