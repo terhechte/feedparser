@@ -7,7 +7,6 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/terhechte/feedparser.git", :tag => s.version.to_s }
   s.authors          = {'Kevin Ballard' => 'kevin@sb.org'}
 
-  s.platform     = :ios, '7.0', :osx, '10.10'
   s.requires_arc = true
 
   s.source_files = 'FeedParser/**/*.{h,m}', './FeedParserFramework/*.{h,m}'
