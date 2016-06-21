@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "FeedParser"
-  s.version          = "0.0.1"
+  s.version          = "0.0.3"
   s.summary          = "FeedParser is an NSXMLParser-based RSS/Atom feed parser for Cocoa. It is intended to parse well-formed RSS and Atom feeds on both the desktop and the iPhone."
   s.homepage         = "https://github.com/terhechte/feedparser"
   s.license          = 'MIT'
